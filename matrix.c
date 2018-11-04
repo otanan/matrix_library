@@ -19,6 +19,19 @@
 bool isNullVector(Vector vector) { return vector.m <= 0; }
 bool isNullMatrix(Matrix matrix) { return (matrix.m <= 0 || matrix.n <= 0); }
 
+float getVectorElem(Vector vector, int entry) {
+	if(isNullVector(vector)) {
+		printf("Attempting to access an undefined vector.\n");
+		return 0;
+	} else if(entry > vector.m) {
+		printf("Out of bounds.\n");
+		return 0;
+	}
+
+	return vector.entries[entry];
+}
+
+
 Vector getColVector(Matrix matrix, int col) {
 
 	if(isNullMatrix(matrix)) {
@@ -32,7 +45,8 @@ Vector getColVector(Matrix matrix, int col) {
 	Vector colVector = {matrix.m};
 	//Looping is necessary
 	for(int i = 0; i < matrix.m; i++) {
-		colVector.entries[i] = matrix.entries[i][col - 1];
+		//TESTING**********
+		colVector.entries[i] = *(&matrix.entries[i] + col - 1);
 	}
 
 	return colVector;
@@ -53,9 +67,31 @@ Vector getRowVector(Matrix matrix, int row) {
 	//For array indexing
 	//Second argument is the length of the row vector
 	//which corresponds to its dimension
-	rowVector.entries = copyArray(matrix.entries[row - 1], rowVector.m)
+	rowVector.entries = copyArray(&matrix.entries[row - 1], rowVector.m);
 	
 	return rowVector;
+}
+
+Vector createVector(int m) {
+	if(m <= 0) {
+		printf("Attempting to create an undefined vector.\n");
+		return NULL_VECTOR;
+	}
+
+	float size = m * sizeof(float);
+	Vector vector = {m, malloc(size)};
+	return vector;
+}
+
+Matrix createMatrix(int m, int n) {
+	if(m <= 0 || n <= 0) {
+		printf("Attempting to create an undefined matrix.\n");
+		return NULL_MATRIX;
+	}
+
+	float size = m * n * sizeof(float);
+	Matrix matrix = {m, n, malloc(size)};
+	return matrix;
 }
 
 void printVector(Vector vector) {
