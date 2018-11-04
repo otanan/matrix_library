@@ -19,6 +19,8 @@ typedef struct Matrix Matrix;
 /*******Getters*********/
 bool isNullVector(Vector);
 bool isNullMatrix(Matrix);
+bool isVectorOutOfBounds(Vector, int row);
+bool isMatrixOutOfBounds(Matrix, int row, int col);
 //Handles accessing the pointer arrays, returns elements
 float getVectorElem(Vector, int entry);
 float getMatrixElem(Matrix, int row, int col);
@@ -33,6 +35,8 @@ Matrix createMatrix(int m, int n);
 void printVector(Vector);
 void printMatrix(Matrix);
 /******Setters***********/
+void setVectorElem(Vector, int row, float value);
+void setMatrixElem(Matrix, int row, int col, float value);
 float *copyArray(float *, int len);
 //Copies a vector over
 Vector copyVector(Vector vector);
