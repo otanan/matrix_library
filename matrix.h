@@ -60,6 +60,7 @@ void setMatrixElem(Matrix, int row, int col, float value);
 float *copyArray(float *, int len);
 //Essentially scaling a vector, but kept as array scale so it can be used by matrices
 void scaleArray(float *, int len, float scale);
+Matrix toMatrix(float *, int m, int n);
 //Copies a vector over
 Vector copyVector(Vector);
 Matrix copyMatrix(Matrix);
@@ -84,13 +85,8 @@ void addScaledRows(Matrix, int row1, float scale1, int row2, float scale2);
 
 
 /*******Algorithms*******/
-void GaussJordan(Matrix);
-
-
-
-
-
-
-
-
-
+//Returns a 2 element arrray with the first element containing the 
+//index of the pivot, and the second element containing the value of the pivot
+//returns -1 for the pivot if it's an all 0 row
+float *getPivot(Matrix, int row);
+void RowReduce(Matrix);
