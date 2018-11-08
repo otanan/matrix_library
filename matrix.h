@@ -39,7 +39,13 @@ void setVectorElem(Vector, int row, float value);
 void setMatrixElem(Matrix, int row, int col, float value);
 float *copyArray(float *, int len);
 //Copies a vector over
-Vector copyVector(Vector vector);
+Vector copyVector(Vector);
+Matrix copyMatrix(Matrix);
+/*******Elementary Operations*******/
+void rowSwap(Matrix, int row1, int row2);
+void rowScale(Matrix, int row, float scale);
 /*******Operations*******/
+void scaleVector(Vector, float scale);
 float dot_product(Vector, Vector);
 Matrix matrix_mult(Matrix, Matrix);
+void GaussJordan(Matrix);
