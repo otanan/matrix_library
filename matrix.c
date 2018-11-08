@@ -7,7 +7,6 @@
 //Create a matrix as columns of vectors?
 //Check if okay to malloc(0) in copyArray
 //Overhead from recalling error checking several times in for loops
-//Consistency with accessing rows and columns versus i and j
 //Checking for null matrix and null vector accessing garbage giving false positives?
 //Create difference between row and column
 //Make mulitplication identify which product to use
@@ -238,6 +237,23 @@ void scaleArray(float *a, int len, float scale) {
 		*(a + i) *= scale;
 }
 
+Matrix toMatrix(float *a, int m, int n) {
+	if(m <= 0 || n <= 0) {
+		printf("Attempting to create an undefined matrix.\n");
+		return NULL_MATRIX;
+	}
+	//Must alloc memory to avoid "segmentation  fault: 11"
+	Matrix matrix = {m, n, malloc(sizeof(float) * m * n)};
+	//Sets the pointer for each row to parts of the area
+	//Jumps across the array passed in to turn the 1d array into a 
+	//2d array
+	for(int i = 0; i < m; i++) {
+		*(matrix.rows + i) = (a + (n * i));
+	}
+
+	return matrix;
+}
+
 Vector copyVector(Vector vector) {
 	//Escapes if Vector is not defined
 	if(isNullVector(vector))
@@ -364,31 +380,68 @@ void addScaledRows(Matrix matrix, int row1, float scale1, int row2, float scale2
 
 
 /***********Algorithms*********/
-void GaussJordan(Matrix matrix) {
-	//Start at the first row
-	int row = 1;
-	int col = 0;
-	while(row < matrix.m) {
-		col++;
+float *getPivot(Matrix matrix, int row) {
+	if(isNullMatrix(matrix) || isMatrixOutOfBounds(matrix, row, 1))
+		return malloc(0);
 
-		float elem = getMatrixElem(matrix, row, col);
+	//Start at the first column and check to see if it's a pivot
+	int col = 1;
+	float value;
+	do {
+		//Get the value corresponding to the first col
+		value = getMatrixElem(matrix, row, col);
+		//Check if it's a pivot, or if we have any more columns
+	} while(value == 0 && ++col <= matrix.n);
+
+	float *pivot = malloc(2 * sizeof(float));
+	//Corresponds to an all 0 row
+	if(value == 0) {	
+		//Return a negative column number and a 0 for a value
+		pivot[0] = -1;
+		pivot[1] = 0;
+		//printf("Pivot in row: %d, column: %.0f, value: %f\n", row, pivot[0], pivot[1]);
+		return pivot;
+	}
+	//Reaches here it means that we didn't reach the end of the columns
+	//and we found a non-zero value
+	pivot[0] = col;
+	pivot[1] = value;
+	//printf("Pivot in row: %d, column: %.0f, value: %f\n", row, pivot[0], pivot[1]);
+	return pivot;
+}
+
+void RowReduce(Matrix matrix) {
+	if(isNullMatrix(matrix))
+		return;
+
+	int row = 1;
+	int col = 1;	
+
+	//Rescale first row to make the pivot = 1
+	scaleRow(matrix, row, 1/getMatrixElem(matrix, row, col));
+	//Subtract the first row from the second column by rescaling it
+		//This assumes the pivot in the second row is in the same column as the first
+	for(int i = row; i <= matrix.m; i++) {
+		//Will access the corresponding element in the same column as the pivot
+		float elem = getMatrixElem(matrix, row + i, col);
+		//Checks to see if it's already 0 before acting
 		if(elem == 0)
 			continue;
 
-		scaleRow(matrix, row, 1/getMatrixElem(matrix, row, 1));
-		addScaledRows(matrix, row + 1, row, 1, -1 * getMatrixElem(matrix, row + 1, col));
+		addScaledRows(matrix, row + i, 1, row, -1 * elem);
 
-
-		row++;
+		//Rescale the second row, must be rescaled by the second column
+		//since we've removed the first
+		scaleRow(matrix, row + i, 1/getMatrixElem(matrix, row + i, col + 1));
 	}
-	//Reinverts last row TEMPORARY
-	scaleRow(matrix, row, 1/getMatrixElem(matrix, matrix.m, matrix.m));
+	//Subtract the second row from the first row
+	addScaledRows(matrix, row, 1, row + 1, -1 * getMatrixElem(matrix, row, col + 1));
 }
 
 /***********TESTING FUNCTIONALITY*********/
 Vector createRandomVector(int m) {
 	static int counter = 0;
-
+	
 	Vector v = createVector(m);
 	for(int row = 1; row <= m; row++) {
 		//"Random" operations
@@ -422,10 +475,15 @@ int main() {
 	//Some output padding
 	printf("\n\n\n");
 
-	Matrix matrix = createRandomMatrix(2, 2);
-	GaussJordan(matrix);
-	printMatrix(matrix);
 
+	//Matrix matrix = createRandomMatrix(2, 2);
+	//RowReduce(matrix);
+	float elements[6] = {2, 3, 4, 1, -12, 2.5};
+	Matrix matrix = toMatrix(elements, 2, 3);
+
+
+	printf("%d",isNullMatrix(matrix));
+	printMatrix(matrix);
 
 
 
@@ -433,7 +491,3 @@ int main() {
 	printf("\n");
 	return 0;
 }
-
-
-
-
