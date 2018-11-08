@@ -13,6 +13,9 @@
 //Make mulitplication identify which product to use
 //Transpose function
 //Create identity matrices
+//Change swap function by copying array instead of entire vector
+//Constructors with possible bool arguments for initialization
+//Change Matrix struct to have a pointer of pointers of arrays
 
 /*******Getters*********/
 bool isNullVector(Vector vector) {
@@ -210,6 +213,16 @@ Vector copyVector(Vector vector) {
 	return copy;
 }
 
+Matrix copyMatrix(Matrix matrix) {
+	if(isNullMatrix(matrix))
+		return NULL_MATRIX;
+
+	Matrix copy = {matrix.m, matrix.n};
+	copy.entries = copyArray(matrix.entries, matrix.m * matrix.n);
+
+	return copy;
+}
+
 Matrix matrix_mult(Matrix m1, Matrix m2) {
 	//Checks if the product is defined
 	//As well if the matrices themselves are defined
@@ -254,23 +267,35 @@ float dot_product(Vector v1, Vector v2) {
 	return dot_product;
 }
 
+void GaussJordan(Matrix matrix) {
+	if(isNullMatrix(matrix))
+		return;
+}
+
+void rowSwap(Matrix matrix, int row1, int row2) {
+	if(isNullMatrix(matrix) || isMatrixOutOfBounds(matrix, row1, 1) || isMatrixOutOfBounds(matrix, row2, 1))
+		return;
+
+	//Holder for swap
+	Vector rowVectorHolder = getRowVector(matrix, row1);
+	//Does a swap by essentially overwriting each entry by reading them individually
+	for(int col = 1; col <= rowVectorHolder.m; col++) {
+		setMatrixElem(matrix, row1, col, getMatrixElem(matrix, row2, col));
+		setMatrixElem(matrix, row2, col, getVectorElem(rowVectorHolder, col));
+	}
+}
+
+void rowScale(Matrix matrix, int row, float scale) {
+	if(isNullMatrix(matrix) || isMatrixOutOfBounds(matrix, row, 1))
+		return;
+
+
+}
+
 //MAIN
 int main() {
 	//Some output padding
 	printf("\n\n\n");
-
-	Matrix m1 = createMatrix(3, 2);
-	Matrix m2 = createMatrix(2, 3);
-	setMatrixElem(m1, 1, 1, 2);
-	setMatrixElem(m1, 2, 2, 2);
-
-	Matrix product = matrix_mult(m1, m2);
-
-	printMatrix(product);
-
-
-
-
 
 
 
