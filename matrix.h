@@ -1,9 +1,13 @@
+#include <stdbool.h>
+
 /********STRUCTS********/
 struct Vector {
 	//Dimension of the vector
 	int m;
 	//Entries of the vector
 	float *entries;
+	//Whether the vector is a column vector
+	bool colVec;
 } NULL_VECTOR = {-1};
 typedef struct Vector Vector;
 
@@ -45,7 +49,7 @@ Vector getRowVector(Matrix, int row);
 
 
 /**********CONSTRUCTORS**********/
-Vector createVector(int m);
+Vector createVector(int m, bool colVec);
 Matrix createMatrix(int m, int n);
 
 
@@ -73,11 +77,16 @@ void setRow(Matrix, int row, float *);
 
 /*******Operations*******/
 void scaleVector(Vector, float scale);
+//Inner product is most general and checks for dimensions to evaluate as either
+//matrix multiplication or a "dot product"
+Matrix inner_product(Vector, Vector);
+//Kept as helper function for inner product indifferent to row/col of input
 float dot_product(Vector, Vector);
 Matrix matrix_mult(Matrix, Matrix);
 void normalize(Vector, int norm);
 float pnorm(Vector, int p);
 void transpose(Matrix *);
+void transposeVector(Vector *);
 
 
 

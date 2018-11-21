@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include <math.h>
 #include "matrix.h"
 //TODO
@@ -20,7 +19,6 @@
 //Organize error checking
 //Function previews when typing them in autocomplete for sublime text
 
-//fix set row
 //symmetric boolean
 //matrix equality
 
@@ -66,7 +64,6 @@ bool areOrthogonal(Vector v1, Vector v2) {
 		printf("Using null vectors.\n");
 		return false;
 	}
-
 	return dot_product(v1, v2) == 0;
 }
 
@@ -94,7 +91,6 @@ float getMatrixElem(Matrix matrix, int row, int col) {
 	//outer term then accesses the "col" or the entry number in that list
 	//Minus 1 from each part to account for 0-indexing
 	//of lists vs 1-indexing of matrices in theory
-	//printf("Row: %d, Col: %d\n", row, col);
 	return ( *(*(matrix.rows + (row - 1)) + (col - 1)) );
 }
 
@@ -126,7 +122,7 @@ Vector getColVector(Matrix matrix, int col) {
 	if(isNullMatrix(matrix) || isMatrixOutOfBounds(matrix, 1, col))
 		return NULL_VECTOR;
 
-	Vector colVector = {matrix.m, getCol(matrix, col)};
+	Vector colVector = {matrix.m, getCol(matrix, col), true};
 	return colVector;
 }
 
@@ -136,20 +132,20 @@ Vector getRowVector(Matrix matrix, int row) {
 	if(isNullMatrix(matrix) || isMatrixOutOfBounds(matrix, row, 1))
 		return NULL_VECTOR;
 
-	Vector rowVector = {matrix.n, getRow(matrix, row)};
+	Vector rowVector = {matrix.n, getRow(matrix, row), false};
 
 	return rowVector;
 }
 
 /**********CONSTRUCTORS**********/
-Vector createVector(int m) {
+Vector createVector(int m, bool colVec) {
 	if(m <= 0) {
 		printf("Attempting to create an undefined vector.\n");
 		return NULL_VECTOR;
 	}
 
 	float size = m * sizeof(float);
-	Vector vector = {m, malloc(size)};
+	Vector vector = {m, malloc(size), colVec};
 	//Initialize the vector's entries to 0
 	for(int row = 1; row <= vector.m; row++) 
 		setVectorElem(vector, row, 0);
@@ -189,11 +185,14 @@ void printVector(Vector vector) {
 	//Escapes if Vector is not defined
 	if(isNullVector(vector))
 		return;
+	//Checks to see whether the vector is a column or row vector for printing
+	printf("%s vector of dimension: %d\n", (vector.colVec ? "Column" : "Row"), vector.m);
 
-	printf("Vector of dimension: %d\n", vector.m);
 	for(int row = 1; row <= vector.m; row++) {
 		//Padding for right justification
-		printf("%6.3f,\n", getVectorElem(vector, row));
+		//If the vector is a column vector, print out each element on a newline
+		//else, just separate entries by a space on the same line
+		printf("%6.3f,%s", getVectorElem(vector, row), (vector.colVec ? "\n" : " "));
 	}
 	//Final line padding
 	printf("\n");
@@ -281,7 +280,7 @@ Vector toVector(float *a, int m) {
 		return NULL_VECTOR;
 	}
 
-	Vector vector = {m, malloc(sizeof(float) * m)};
+	Vector vector = {m, malloc(sizeof(float) * m), true};
 
 	for(int i = 1; i <= m; i++)
 		setVectorElem(vector, i, a[i - 1]);
@@ -312,7 +311,7 @@ Vector copyVector(Vector vector) {
 		return NULL_VECTOR;
 
 	//Initializes the copy
-	Vector copy = createVector(vector.m);
+	Vector copy = createVector(vector.m, vector.colVec);
 	//Copies the entries
 	copy.entries = copyArray(vector.entries, vector.m);
 
@@ -425,6 +424,13 @@ void transpose(Matrix *matrix) {
 	matrix -> n = temp.n;
 }
 
+void transposeVector(Vector *vector) {
+	if(isNullVector(*vector))
+		return;
+
+	vector->colVec = !vector->colVec;
+}
+
 /*******Elementary Operations*******/
 void swapRow(Matrix matrix, int row1, int row2) {
 	if(isNullMatrix(matrix) || isMatrixOutOfBounds(matrix, row1, 1) || isMatrixOutOfBounds(matrix, row2, 1))
@@ -533,7 +539,7 @@ void RowReduce(Matrix matrix) {
 Vector createRandomVector(int m) {
 	static int counter = 0;
 	
-	Vector v = createVector(m);
+	Vector v = createVector(m, true);
 	for(int row = 1; row <= m; row++) {
 		//"Random" operations
 		setVectorElem(v, row, row * row + (3/2 * counter * counter) - 24 / (counter + 1));
@@ -570,15 +576,20 @@ int main() {
 
 	Matrix matrix = createRandomMatrix(2, 5);
 	//RowReduce(matrix);
-	//float elements[6] = {2, 3, 4, 1, -12, 2.5};
-	float elements[2] = {1, 1};
+	float elements[6] = {2, 3, 4, 1, -12, 2.5};
+	//float elements[2] = {1, 1};
+
+	Vector vector = toVector(elements, 6);
+	printVector(vector);
+	transposeVector(&vector);
+	printVector(vector);
 
 	//Matrix matrix = toMatrix(elements, 2, 3);
 	//Vector v1 = toVector(elements, 2);
 	//Vector v2 = toVector(elements2, 2);
 	//printMatrix(matrix);
-	transpose(&matrix);
-	printMatrix(matrix);
+	//transpose(&matrix);
+	//printMatrix(matrix);
 
 
 	printf("\n");
