@@ -27,6 +27,8 @@ bool isNullVector(Vector);
 bool isNullMatrix(Matrix);
 bool isVectorOutOfBounds(Vector, int row);
 bool isMatrixOutOfBounds(Matrix, int row, int col);
+bool areOrthogonal(Vector, Vector);
+int getDim(Vector);
 //Handles accessing the pointer arrays, returns elements
 float getVectorElem(Vector, int entry);
 float getMatrixElem(Matrix, int row, int col);
@@ -60,10 +62,12 @@ void setMatrixElem(Matrix, int row, int col, float value);
 float *copyArray(float *, int len);
 //Essentially scaling a vector, but kept as array scale so it can be used by matrices
 void scaleArray(float *, int len, float scale);
+Vector toVector(float *, int m);
 Matrix toMatrix(float *, int m, int n);
 //Copies a vector over
 Vector copyVector(Vector);
 Matrix copyMatrix(Matrix);
+void setRow(Matrix, int row, float *);
 
 
 
@@ -71,6 +75,9 @@ Matrix copyMatrix(Matrix);
 void scaleVector(Vector, float scale);
 float dot_product(Vector, Vector);
 Matrix matrix_mult(Matrix, Matrix);
+void normalize(Vector, int norm);
+float pnorm(Vector, int p);
+void transpose(Matrix *);
 
 
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 #include "matrix.h"
 //TODO
 //Create a matrix as columns of vectors?
@@ -18,6 +19,10 @@
 //Can I optimize the elementary operations (like addRows)
 //Organize error checking
 //Function previews when typing them in autocomplete for sublime text
+
+//fix set row
+//symmetric boolean
+//matrix equality
 
 /*******Getters*********/
 bool isNullVector(Vector vector) {
@@ -56,6 +61,22 @@ bool isMatrixOutOfBounds(Matrix matrix, int row, int col) {
 	return false;
 }
 
+bool areOrthogonal(Vector v1, Vector v2) {
+	if(isNullVector(v1) || isNullVector(v2)) {
+		printf("Using null vectors.\n");
+		return false;
+	}
+
+	return dot_product(v1, v2) == 0;
+}
+
+int getDim(Vector vector) {
+	if(isNullVector(vector))
+		return -1;
+
+	return vector.m;
+}
+
 //Calling the argument for the entry index "row" because vectors are
 //to be visualized as column vectors
 float getVectorElem(Vector vector, int row) {
@@ -73,6 +94,7 @@ float getMatrixElem(Matrix matrix, int row, int col) {
 	//outer term then accesses the "col" or the entry number in that list
 	//Minus 1 from each part to account for 0-indexing
 	//of lists vs 1-indexing of matrices in theory
+	//printf("Row: %d, Col: %d\n", row, col);
 	return ( *(*(matrix.rows + (row - 1)) + (col - 1)) );
 }
 
@@ -84,7 +106,8 @@ float *getRow(Matrix matrix, int row) {
 }
 
 float *getCol(Matrix matrix, int col) {
-	if(isNullMatrix(matrix) || isMatrixOutOfBounds(matrix, col, 1))
+	//printf("Column being accessed: %d\n", col);
+	if(isNullMatrix(matrix) || isMatrixOutOfBounds(matrix, 1, col))
 		return malloc(0);
 	//Note that columns cannot be handled the same as rows
 	//since I need to jump array to array versus grabbing a single one
@@ -227,6 +250,21 @@ float * copyArray(float *a, int len) {
 	return copy;
 }
 
+void setRow(Matrix matrix, int row, float *a) {
+	if(isNullMatrix(matrix) || isMatrixOutOfBounds(matrix, row, 1)) {
+		printf("Attempting to set an invalid row.\n");
+		return;
+	}
+
+	//printVector(toVector(a, matrix.n));
+	//Fetches the address to the corresponding row of the matrix
+	//Copies the array passed in, to the row of the matrix
+	//Note that the length of the array passed in must match the amount of columns in the matrix
+	//printf("Row being set: %d\n", row);
+	//printf("Length of row: %d\n", matrix.n);
+	memcpy(*(matrix.rows + (row - 1)), a, sizeof(float) * matrix.n);
+}
+
 void scaleArray(float *a, int len, float scale) {
 	if(len <= 0) {
 		printf("Invalid array length.\n");	
@@ -235,6 +273,20 @@ void scaleArray(float *a, int len, float scale) {
 
 	for(int i = 0; i < len; i++)
 		*(a + i) *= scale;
+}
+
+Vector toVector(float *a, int m) {
+	if(m <= 0) {
+		printf("Giving an invalid vector length.\n");
+		return NULL_VECTOR;
+	}
+
+	Vector vector = {m, malloc(sizeof(float) * m)};
+
+	for(int i = 1; i <= m; i++)
+		setVectorElem(vector, i, a[i - 1]);
+	
+	return vector;
 }
 
 Matrix toMatrix(float *a, int m, int n) {
@@ -247,9 +299,9 @@ Matrix toMatrix(float *a, int m, int n) {
 	//Sets the pointer for each row to parts of the area
 	//Jumps across the array passed in to turn the 1d array into a 
 	//2d array
-	for(int i = 0; i < m; i++) {
+	for(int i = 0; i < m; i++)
 		*(matrix.rows + i) = (a + (n * i));
-	}
+	
 
 	return matrix;
 }
@@ -332,7 +384,46 @@ Matrix matrix_mult(Matrix m1, Matrix m2) {
 	return product;
 }
 
+void normalize(Vector vector, int norm) {
+	if(isNullVector(vector))
+		return;
 
+	float magnitude = pnorm(vector, norm);
+	scaleVector(vector, 1/magnitude);
+}
+
+float pnorm(Vector vector, int p) {
+	//Norms are strictly nonnegative, this indicates a point of failure
+	if(isNullVector(vector))
+		return -1;
+	else if(p <= 0) {
+		printf("Not a valid p-norm.");
+		return -1;
+	}
+
+	float norm = 0;
+	for(int i = 1; i <= getDim(vector); i++) 
+		norm += pow(getVectorElem(vector, i), p);
+	
+	return pow(norm, 1.0/p);
+}
+
+void transpose(Matrix *matrix) {
+	if(isNullMatrix(*matrix)) {
+		printf("Attempting to transpose a null matrix.\n");
+		return;
+	}
+
+	Matrix temp = createMatrix(matrix->n, matrix->m);
+
+	for(int row = 1; row <= temp.m; row++) {
+		setRow(temp, row, getCol(*matrix, row));
+	}
+	//Reassigns the matrix entries to point to our transpose entries
+	matrix->rows = temp.rows;
+	matrix->m = temp.m;
+	matrix -> n = temp.n;
+}
 
 /*******Elementary Operations*******/
 void swapRow(Matrix matrix, int row1, int row2) {
@@ -465,6 +556,7 @@ Matrix createRandomMatrix(int m, int n) {
 	}
 	counter2++;
 
+	printf("Randomly generated matrix:\n");
 	printMatrix(matrix);
 
 	return matrix;
@@ -476,16 +568,17 @@ int main() {
 	printf("\n\n\n");
 
 
-	//Matrix matrix = createRandomMatrix(2, 2);
+	Matrix matrix = createRandomMatrix(2, 5);
 	//RowReduce(matrix);
-	float elements[6] = {2, 3, 4, 1, -12, 2.5};
-	Matrix matrix = toMatrix(elements, 2, 3);
+	//float elements[6] = {2, 3, 4, 1, -12, 2.5};
+	float elements[2] = {1, 1};
 
-
-	printf("%d",isNullMatrix(matrix));
+	//Matrix matrix = toMatrix(elements, 2, 3);
+	//Vector v1 = toVector(elements, 2);
+	//Vector v2 = toVector(elements2, 2);
+	//printMatrix(matrix);
+	transpose(&matrix);
 	printMatrix(matrix);
-
-
 
 
 	printf("\n");

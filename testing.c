@@ -1,3 +1,31 @@
+void transpose(Matrix *matrix) {
+	if(isNullMatrix(*matrix)) {
+		printf("Attempting to transpose a null matrix.\n");
+		return;
+	}
+
+	Matrix t = createMatrix(matrix->n, matrix->m);
+
+	for(int row = 1; row <= t.m; row++) {
+		//printVector(toVector(getCol(*matrix, row), t.n));
+		//printf("Col being accessed: %d\n", row);
+		setRow(t, row, getCol(*matrix, row));
+	}
+	//Reassigns the matrix entries to point to our transpose entries
+	matrix->m = t.m;
+	matrix->n = t.n;
+
+	matrix = &t;
+
+	printf("PRINTING T\n");
+	printMatrix(t);
+
+	printf("PRINTING matrix\n");
+	printMatrix(*matrix);
+	//Mem dump here
+}
+
+
 /********ROW REDUCTION on ideal 2x2***********/
 void RowReduce(Matrix matrix) {
 	if(isNullMatrix(matrix))
