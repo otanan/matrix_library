@@ -1,4 +1,5 @@
 #include <math.h>
+#include <time.h>
 #include "vector.h"
 
 Vector NULL_VECTOR = {-1};
@@ -26,6 +27,16 @@ void scaleArray(float *a, int len, float scale) {
 
 	for(int i = 0; i < len; i++)
 		*(a + i) *= scale;
+}
+
+float randomFloat() {
+	static bool seedSet = false;
+	if(!seedSet) {
+		srand(time(0));
+		seedSet = true;
+	}
+
+	return rand() * 1.0;
 }
 
 /**********CONSTRUCTORS**********/
@@ -75,19 +86,16 @@ Vector toVector(float *a, int m) {
 }
 
 Vector newRandomVector(int m) {
-	//Temporary implementation
-	static int counter = 0;
-	
-	Vector self = newVector(m, true);
-	for(int row = 1; row <= m; row++) {
-		//"Random" operations
-		self.setElem(self, row, row * row + (3/2 * counter * counter) - 24 / (counter + 1));
+	if(m <= 0) {
+		printf("Cannot create a random vector of negative dimension.\n");
+		return NULL_VECTOR;
 	}
-	counter++;
-	//Temporary printing statement to quickly show what was "randomly" generated
-	self.print(self);
+	//Loads an array of random floats and submits it to converting function
+	float *elements = malloc(sizeof(float) * m);
+	for(int i = 0; i < m; i++)
+		elements[i] = randomFloat();
 
-	return self;
+	return toVector(elements, m);
 }
 
 Vector __copyVector__(Vector self) {

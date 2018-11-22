@@ -26,19 +26,23 @@
 //Potential loop? NullVector calls dim, dim calls nullvec?
 //Considering implementing System.exit(-1) on using a null vector to eliminate argument checking
 //Also consider the fact that methods cant even be called on nullVectors since they pointing wouldn't have
-//been initialied
-//Get entries method for vector?
+//been initialized
 //Potential __init__ function in constructor solely for pointing to methods?
 //use case example is in alternative constructors, or finding way to all link to the same base constructor
-//Separate into two files: Vector, and Matrix which depends on Vector
 
 //Consider making toVector function just repoint the entries array rather than looping
 //Improve efficiency of toMatrix and toVector since they currently use the default constructor
 //which initializes everything to 0 before initializing arg
 
 //Consider privacy of field consisting of dimensions of the matrix
-//READ COMMENTS
-//fix add scaled rows since the logic isn't correct about scale1 and scale2
+
+//VECTOR MULTIPLICATION
+	//Note that this whole step could be optimized
+	//there is a predictable pattern to the outcome of an outer product
+	//rather than converting both to matrices and relying on matrix multiplication
+
+//ADD SCALED ROWS
+	//Consider checking if either scale is 1 to skip steps
 
 //MAIN
 int main() {
@@ -48,12 +52,19 @@ int main() {
 
 	//Matrix matrix = createRandomMatrix(2, 5);
 	//RowReduce(matrix);
-	float elements[6] = {2, 3, 4, 1, -12, 2.5};
+	//float elements[6] = {2, 3, 4, 1, -12, 2.5};
 
 	//float elements[2] = {1, 1};
 
-	Vector vector = toVector(elements, 6);
-	vector.print(vector);
+	//Vector vector = toVector(elements, 6);
+	for(int i = 0; i < 10; i++) {
+		Matrix matrix = newRandomMatrix(5, 5);
+		matrix.print(matrix);
+	}
+	//Matrix matrix = newRandomMatrix(2, 2);
+	//matrix.print(matrix);
+
+
 //	printVector(vector);
 //	Vector vector2 = copyVector(vector);
 //	transposeVector(&vector2);

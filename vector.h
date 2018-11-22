@@ -40,6 +40,9 @@ struct Vector {
 float *copyArray(float *, int len);
 //Essentially scaling a vector, but kept as array scale so it can be used by matrices
 void scaleArray(float *, int len, float scale);
+//Returns a random float using an adapted rand function from time.h
+//Is used for random functionality in creating a vector
+float randomFloat(void);
 
 /**********CONSTRUCTORS**********/
 Vector newVector(int m, bool colVec);

@@ -61,33 +61,29 @@ Matrix toMatrix(float *a, int m, int n) {
 		return NULL_MATRIX;
 	}
 	//Must alloc memory to avoid "segmentation  fault: 11"
-	Matrix self = {m, n, malloc(sizeof(float) * m * n)};
+	Matrix self = newMatrix(m, n);//{m, n, malloc(sizeof(float) * m * n)};
 	//Sets the pointer for each row to parts of the area
 	//Jumps across the array passed in to turn the 1d array into a 
 	//2d array
-	for(int i = 0; i < m; i++) {
-		//printf("%f\n", *(a + (n * i)));
+	for(int i = 0; i < m; i++)
 		*(self.__rows__ + i) = (a + (n * i));
-	}
+
 
 	return self;
 }
 
-Matrix createRandomMatrix(int m, int n) {
-	static int counter2 = 1;
-
-	Matrix self = newMatrix(m, n);
-	for(int row = 1; row <= m; row++) {
-		for(int col = 1; col <= n; col++) {
-			self.setElem(self, row, col, 2+counter2/4 - row * col + 5 * col);
-		}
+Matrix newRandomMatrix(int m, int n) {
+	if(m <= 0 || n <= 0) {
+		printf("Cannot create a random matrix of negative dimensions.\n");
+		return NULL_MATRIX;
 	}
-	counter2++;
 
-	printf("Randomly generated matrix:\n");
-	self.print(self);
+	float *elements = malloc(sizeof(float) * m * n);
+	for(int i = 0; i < m * n; i++)
+		elements[i] = randomFloat();
 
-	return self;
+	return toMatrix(elements, m, n);
+
 }
 
 Matrix __copyMatrix__(Matrix self) {
@@ -141,7 +137,6 @@ float *__getRow__(Matrix self, int row) {
 }
 
 float *__getCol__(Matrix self, int col) {
-	//printf("Column being accessed: %d\n", col);
 	if(self.isNull(self) || self.isOutOfBounds(self, 1, col))
 		return malloc(0);
 	//Note that columns cannot be handled the same as rows
@@ -215,12 +210,9 @@ void __setRow__(Matrix self, int row, float *a) {
 		return;
 	}
 
-	//printVector(toVector(a, matrix.n));
 	//Fetches the address to the corresponding row of the matrix
 	//Copies the array passed in, to the row of the matrix
 	//Note that the length of the array passed in must match the amount of columns in the matrix
-	//printf("Row being set: %d\n", row);
-	//printf("Length of row: %d\n", matrix.n);
 	memcpy(*(self.__rows__ + (row - 1)), a, sizeof(float) * self.n);
 }
 
@@ -255,15 +247,12 @@ Matrix vector_mult(Vector v1, Vector v2) {
 	if((v1.isColVec(v1) && v2.isColVec(v2)) || (!v1.isColVec(v1) && !v2.isColVec(v2)))
 		return NULL_MATRIX;
 
-	//this is the inner product
+	//This is the inner product
 	if(!v1.isColVec(v1) && v2.isColVec(v2)) {
 		float elements[1] = {dot_product(v1, v2)};
 		//Returns a 1x1 matrix with the result inside
 		return toMatrix(elements, 1, 1);
 	}
-	//Note that this whole step could be optimized
-	//there is a predictable pattern to the outcome of an outer product
-	//Rather than converting both to matrices and relying on matrix multiplication
 	//Otherwise, outer product:
 	Matrix m1 = toMatrix(v1.__entries__, v1.dim(v1), 1);
 	Matrix m2 = toMatrix(v2.__entries__, 1, v2.dim(v2));
@@ -273,7 +262,7 @@ Matrix vector_mult(Vector v1, Vector v2) {
 
 Matrix matrix_mult(Matrix m1, Matrix m2) {
 	//Checks if the product is defined
-	//As well if the matrices themselves are defined
+	//as well if the matrices themselves are defined
 	if(m1.n != m2.m || m1.isNull(m1) || m2.isNull(m2))
 		return NULL_MATRIX;
 
@@ -329,10 +318,9 @@ void __addRows__(Matrix self, int row1, int row2) {
 
 void __addScaledRows__(Matrix self, int row1, float scale1, int row2, float scale2) {
 	//Adding a scaled row of 0 is just adding 0 to each term, waste of time
-	if(scale1 == 0 || scale2 == 0)
+	if(scale2 == 0)
 		return;
-
-	//Consider checking if either scale is 1 to skip steps
+	
 	self.scaleRow(self, row1, scale1);
 	self.scaleRow(self, row2, scale2);
 	self.addRows(self, row1, row2);

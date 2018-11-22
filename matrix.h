@@ -75,6 +75,5 @@ void __swapRows__(Matrix self, int row1, int row2);
 void __scaleRow__(Matrix self, int row, float scale);
 //Will add row2 to row1 and store it in row1
 void __addRows__(Matrix self, int row1, int row2);
-//Will combine scaleRow, nad addRows with options of rescaling each row
-//will be helpful when doing Gauss-Jordan
+//Will combine scaleRow, and addRows with options of rescaling each row
 void __addScaledRows__(Matrix self, int row1, float scale1, int row2, float scale2);
