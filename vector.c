@@ -2,13 +2,13 @@
 #include <time.h>
 #include "vector.h"
 
-Vector NULL_VECTOR = {-1};
+const Vector NULL_VECTOR = {-1};
 
-/**********General Functionality**********/
+/******************************General Functionality******************************/
 float *copyArray(float *a, int len) {
 	if(len <= 0) {
 		printf("Invalid array length.\n");	
-		return malloc(0);
+		return NULL;
 	}
 	//Size of the array to be copied
 	float size = len * sizeof(float);
@@ -30,16 +30,18 @@ void scaleArray(float *a, int len, float scale) {
 }
 
 float randomFloat() {
+	static const float UPPER_LIMIT = 5;
 	static bool seedSet = false;
+
 	if(!seedSet) {
-		srand(time(0));
+		srand(time(NULL));
 		seedSet = true;
 	}
-
-	return rand() * 1.0;
+	//Rescales random number returned to avoid working with such large values
+	return rand() * UPPER_LIMIT/RAND_MAX ;
 }
 
-/**********CONSTRUCTORS**********/
+/******************************Constructors******************************/
 Vector newVector(int m, bool colVec) {
 	if(m <= 0) {
 		printf("Attempting to create an undefined vector.\n");
@@ -49,13 +51,14 @@ Vector newVector(int m, bool colVec) {
 	float size = m * sizeof(float);
 	Vector self = {m, malloc(size), colVec};
 	//Point methods to the function pointers
+	self.copy = __copyVector__;
 	//Getters
 	self.dim = __getVectorDimension__;
 	self.isNull = __isNullVector__;
 	self.isColVec = __isColVec__;
 	self.isOutOfBounds = __isVectorOutOfBounds__;
 	self.getElem = __getVectorElem__;
-	self.copy = __copyVector__;
+	self.isEqualTo = __isVectorEqualTo__;
 	//Printers
 	self.print = __printVector__;
 	//Setters
@@ -111,7 +114,8 @@ Vector __copyVector__(Vector self) {
 	return copy;
 }
 
-/*******Getters*********/
+
+/******************************Getters******************************/
 int __getVectorDimension__(Vector self) { return self.__m__; }
 
 bool __isColVec__(Vector self) {
@@ -147,6 +151,26 @@ float __getVectorElem__(Vector self, int index) {
 	return self.__entries__[index - 1];
 }
 
+bool __isVectorEqualTo__(Vector self, Vector other) {
+	//One of the vectors is invalid
+	if(self.isNull(self) || other.isNull(other))
+		return false;
+	//If the vectors passed in link to the same object, then they are obviously equal
+	else if(&self == &other)
+		return true;
+	//If the dimensions of self and other don't match, then they cannot be equal
+	else if(self.dim(self) != other.dim(other))
+		return false;
+
+	for(int index = 1; index <= self.dim(self); index++) {
+		//Will return false on the first element that doesn't match
+		if(self.getElem(self, index) != other.getElem(other, index))
+			return false;
+	}
+	//If you've made it to this point, both vectors must clearly be equal
+	return true;
+}
+
 bool areOrthogonal(Vector v1, Vector v2) {
 	if(v1.isNull(v1) || v2.isNull(v2)) {
 		printf("Using null vectors.\n");
@@ -155,7 +179,7 @@ bool areOrthogonal(Vector v1, Vector v2) {
 	return dot_product(v1, v2) == 0;
 }
 
-/********Printers*******/
+/******************************Printers******************************/
 void __printVector__(Vector self) {
 	//Escapes if Vector is not defined
 	if(self.isNull(self))
@@ -173,7 +197,7 @@ void __printVector__(Vector self) {
 	printf("\n");
 }
 
-/******Setters***********/
+/******************************Setters******************************/
 void __setVectorElem__(Vector self, int index, float value) {
 	if(self.isNull(self) || self.isOutOfBounds(self, index))
 		return;
@@ -181,7 +205,7 @@ void __setVectorElem__(Vector self, int index, float value) {
 	self.__entries__[index - 1] = value;
 }
 
-/*******Operations*******/
+/******************************Operations******************************/
 //Transposes the vector negating whether it was a column vector or not
 //all other functions check that value to adapt to how to treat the vector
 void __transposeVector__(Vector *self) {

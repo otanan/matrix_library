@@ -1,6 +1,7 @@
 #include "vector.h"
 
-/********STRUCTS********/
+/******************************Structs******************************/
+
 typedef struct Matrix Matrix;
 struct Matrix {
 	//Dimensions of the matrix
@@ -10,6 +11,7 @@ struct Matrix {
 	float **__rows__;
 
 	//"METHODS"
+	Matrix (*copy)(Matrix self);
 	//Getters
 	int *(*dim)(Matrix self);
 	bool (*isNull)(Matrix self);
@@ -19,7 +21,8 @@ struct Matrix {
 	float *(*getCol)(Matrix self, int col);
 	Vector (*getColVector)(Matrix self, int col);
 	Vector (*getRowVector)(Matrix self, int row);
-	Matrix (*copy)(Matrix self);
+	bool (*isEqualTo)(Matrix self, Matrix other);
+	bool (*isSymmetric)(Matrix self);
 	//Printers
 	void (*print)(Matrix self);
 	//Setters
@@ -35,13 +38,15 @@ struct Matrix {
 };
 
 
-/**********CONSTRUCTORS**********/
+/******************************Constructors******************************/
 Matrix newMatrix(int m, int n);
 Matrix toMatrix(float *, int m, int n);
 Matrix newRandomMatrix(int m, int n);
 
 Matrix __copyMatrix__(Matrix self);
-/*******Getters*********/
+
+
+/******************************Getters******************************/
 bool __isNullMatrix__(Matrix self);
 bool __isMatrixOutOfBounds__(Matrix self, int row, int col);
 //Handles accessing the pointer arrays, returns elements
@@ -55,25 +60,39 @@ float *__getCol__(Matrix self, int col);
 Vector __getColVector__(Matrix self, int col);
 //Gets a row of the matrix as a row vector
 Vector __getRowVector__(Matrix self, int row);
+bool __isMatrixEqualTo__(Matrix self, Matrix other);
+bool __isSymmetric__(Matrix self);
 
-/**********Printers**********/
+
+
+/******************************Printers******************************/
 void __printMatrix__(Matrix self);
 
-/**********Setters**********/
+
+
+/******************************Setters******************************/
 void __setMatrixElem__(Matrix self, int row, int col, float val);
 void __setRow__(Matrix, int row, float *);
 
-/**********Operations**********/
+
+
+/******************************Operations******************************/
 void __transposeMatrix__(Matrix *self);
 //Vector multiplication is most general type to decide whether the operation is
 //either an inner product or outer product
 Matrix vector_mult(Vector, Vector);
 Matrix matrix_mult(Matrix, Matrix);
 
-/*******Elementary Operations*******/
+
+
+/******************************Elementary Operations******************************/
 void __swapRows__(Matrix self, int row1, int row2);
 void __scaleRow__(Matrix self, int row, float scale);
 //Will add row2 to row1 and store it in row1
 void __addRows__(Matrix self, int row1, int row2);
 //Will combine scaleRow, and addRows with options of rescaling each row
 void __addScaledRows__(Matrix self, int row1, float scale1, int row2, float scale2);
+
+
+/******************************TESTING FUNCTIONALITY******************************/
+void __matrix_test__(void);
