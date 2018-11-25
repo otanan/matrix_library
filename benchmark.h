@@ -1,0 +1,1 @@
+void benchmark_general(void (*test)(void));

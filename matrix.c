@@ -1,11 +1,11 @@
 #include "matrix.h"
 
 //Defines the NULL_MATRIX the program defaults to using when a function fails
-Matrix NULL_MATRIX = {-1, -1};
+const Matrix NULL_MATRIX = {-1, -1};
 //Refers to the NULL_VECTOR defined in vector.c
-extern Vector NULL_VECTOR;
+extern const Vector NULL_VECTOR;
 
-/**********CONSTRUCTORS**********/
+/******************************Constructors******************************/
 Matrix newMatrix(int m, int n) {
 	if(m <= 0 || n <= 0) {
 		printf("Attempting to create an undefined matrix.\n");
@@ -31,6 +31,8 @@ Matrix newMatrix(int m, int n) {
 	self.getColVector = __getColVector__;
 	self.getRowVector = __getRowVector__;
 	self.copy = __copyMatrix__;
+	self.isEqualTo = __isMatrixEqualTo__;
+	self.isSymmetric = __isSymmetric__;
 	//Printers
 	self.print = __printMatrix__;
 	//Setters
@@ -98,7 +100,7 @@ Matrix __copyMatrix__(Matrix self) {
 
 	return copy;
 }
-/*******Getters*********/
+/******************************Getters******************************/
 bool __isNullMatrix__(Matrix self) {
 	//Gets the dimension of the matrix and inspects it for negativity
 	//a sign that it is an invalid matrix
@@ -131,14 +133,14 @@ float __getMatrixElem__(Matrix self, int row, int col) {
 
 float *__getRow__(Matrix self, int row) {
 	if(self.isNull(self) || self.isOutOfBounds(self, row, 1))
-		return malloc(0);
+		return NULL;
 
-	return copyArray(*((self.__rows__) + (row - 1)), self.dim(self)[1]);
+	return copyArray(*((self.__rows__) + (row - 1)), self.n);
 }
 
 float *__getCol__(Matrix self, int col) {
 	if(self.isNull(self) || self.isOutOfBounds(self, 1, col))
-		return malloc(0);
+		return NULL;
 	//Note that columns cannot be handled the same as rows
 	//since I need to jump array to array versus grabbing a single one
 	float *a = malloc(self.m * sizeof(float));
@@ -174,7 +176,46 @@ Vector __getRowVector__(Matrix self, int row) {
 	return rowVector;
 }
 
-/********Printers*******/
+bool __isMatrixEqualTo__(Matrix self, Matrix other) {
+	if(self.isNull(self) || other.isNull(other))
+		return false;
+	else if(&self == &other)
+		return true;
+	else if(self.m != other.m || self.n != other.n)
+		return false;
+	//Loops through rows, grabs each row as a row vector
+	//and implements usage of vector comparison to do equality
+	for(int row = 1; row <= self.m; row++) {
+		Vector currentRow = self.getRowVector(self, row);
+
+		if(!currentRow.isEqualTo(currentRow, other.getRowVector(other, row)))
+			return false;
+	}
+
+	return true;
+}
+
+bool __isSymmetric__(Matrix self) {
+	if(self.isNull(self))
+		return false;
+	//A symmetric matrix must be square by definition
+	else if(self.m != self.n)
+		return false;
+	//I can skip the last row of the matrix
+	//since all that is left to compare is the diagonal element
+	for(int i = 1; i < self.m; i++) {
+		//Loops through only the upper triangle, and compares with the lower triangle
+		//Looping through the lower triangle is a waste since it'll give the same result
+		for(int j = i + 1; j <= self.n; j++) {
+			if(self.getElem(self, i, j) != self.getElem(self, j, i))
+				return false;
+		}
+	}
+	//If you're at this point, you must be symmetric
+	return true;
+}
+
+/******************************Printers******************************/
 void __printMatrix__(Matrix self) {
 	//Escapes if matrix is not defined
 	if(self.isNull(self))
@@ -196,7 +237,7 @@ void __printMatrix__(Matrix self) {
 }
 
 
-/******Setters***********/
+/******************************Setters******************************/
 void __setMatrixElem__(Matrix self, int row, int col, float value) {
 	if(self.isNull(self) || self.isOutOfBounds(self, row, col))
 		return;
@@ -216,7 +257,7 @@ void __setRow__(Matrix self, int row, float *a) {
 	memcpy(*(self.__rows__ + (row - 1)), a, sizeof(float) * self.n);
 }
 
-/*******Operations*******/
+/******************************Operations******************************/
 void __transposeMatrix__(Matrix *self) {
 	if(self->isNull(*self)) {
 		printf("Attempting to transpose a null matrix.\n");
@@ -234,7 +275,7 @@ void __transposeMatrix__(Matrix *self) {
 	//Reassigns the matrix entries to point to our transpose entries
 	self->__rows__ = temp.__rows__;
 	self->m = temp.m;
-	self -> n = temp.n;
+	self->n = temp.n;
 }
 
 Matrix vector_mult(Vector v1, Vector v2) {
@@ -249,7 +290,9 @@ Matrix vector_mult(Vector v1, Vector v2) {
 
 	//This is the inner product
 	if(!v1.isColVec(v1) && v2.isColVec(v2)) {
-		float elements[1] = {dot_product(v1, v2)};
+		//Must malloc to prevent automatic variable from being disposed after function call
+		float *elements = malloc(sizeof(float));
+		elements[0] = dot_product(v1, v2);
 		//Returns a 1x1 matrix with the result inside
 		return toMatrix(elements, 1, 1);
 	}
@@ -268,14 +311,13 @@ Matrix matrix_mult(Matrix m1, Matrix m2) {
 
 	//Prepares the dimensions of the product
 	//and initializes the matrix
-	Matrix product = newMatrix(m1.m, m2.n);
 
+	Matrix product = newMatrix(m1.m, m2.n);
 	//Multiplication begins here
 	for(int row = 1; row <= product.m; row++) {
 		//Gets the row vector outside of the nested for loop
 		//to prevent from reaccessing matrix more than necessary
 		Vector m1RowVec = m1.getRowVector(m1, row);
-
 		for(int col = 1; col <= product.n; col++) {
 			//Grabs the column vector of the second matrix to dot product
 			//with row vector of first matrix
@@ -286,7 +328,7 @@ Matrix matrix_mult(Matrix m1, Matrix m2) {
 	return product;
 }
 
-/*******Elementary Operations*******/
+/******************************Elementary Operations******************************/
 void __swapRows__(Matrix self, int row1, int row2) {
 	if(self.isNull(self) || self.isOutOfBounds(self, row1, 1) || self.isOutOfBounds(self, row2, 1))
 		return;
@@ -326,4 +368,15 @@ void __addScaledRows__(Matrix self, int row1, float scale1, int row2, float scal
 	self.addRows(self, row1, row2);
 	//Undo the scaling on the second row
 	self.scaleRow(self, row2, 1/scale2);
+}
+
+void __matrix_test__() {
+	for(int i = 1; i <= 100; i++) {
+		Matrix m1 = newRandomMatrix(i, i);
+		Matrix m2 = newRandomMatrix(i, i);
+		matrix_mult(m1, m2);
+
+		m1.print(m1);
+		m2.print(m2);
+	}
 }

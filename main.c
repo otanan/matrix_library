@@ -1,32 +1,22 @@
 #include "matrix.h"
+#include "benchmark.h"
 
 //TODO
-//Create a matrix as columns of vectors?
-//Check if okay to malloc(0) in copyArray
 //Overhead from recalling error checking several times in for loops
 //Checking for null matrix and null vector accessing garbage giving false positives?
-//Create difference between row and column
 //Make mulitplication identify which product to use
-//Transpose function
 //Create identity matrices
-//Change swap function by copying array instead of entire vector
-//Constructors with possible bool arguments for initialization
-//Change Matrix struct to have a pointer of pointers of arrays
 //Can I optimize the elementary operations (like addRows)
 //Organize error checking
 //Function previews when typing them in autocomplete for sublime text
 
-//symmetric boolean
-//matrix equality
-//fix vector multiplication, error coming from toMatrix on v2
-
-//Continue refining OOP
 //Decide on using structs or struct pointers
 //isNull probably doesn't actually work on a null vector
-//Potential loop? NullVector calls dim, dim calls nullvec?
+
 //Considering implementing System.exit(-1) on using a null vector to eliminate argument checking
 //Also consider the fact that methods cant even be called on nullVectors since they pointing wouldn't have
 //been initialized
+
 //Potential __init__ function in constructor solely for pointing to methods?
 //use case example is in alternative constructors, or finding way to all link to the same base constructor
 
@@ -44,11 +34,19 @@
 //ADD SCALED ROWS
 	//Consider checking if either scale is 1 to skip steps
 
+//Consider optimizing "isMatrixEqualTo" by avoiding vector conversion?
+
+//Time testing functionality
+	//Improve benchmark
+
+//Find out how free works on structs, potentially make a custom free method for each struct
+
 //MAIN
 int main() {
 	//Some output padding
 	printf("\n\n\n");
-
+	extern const Vector NULL_VECTOR;
+	//benchmark_general(__matrix_test__);
 
 	//Matrix matrix = createRandomMatrix(2, 5);
 	//RowReduce(matrix);
@@ -57,13 +55,15 @@ int main() {
 	//float elements[2] = {1, 1};
 
 	//Vector vector = toVector(elements, 6);
-	for(int i = 0; i < 10; i++) {
-		Matrix matrix = newRandomMatrix(5, 5);
-		matrix.print(matrix);
-	}
 	//Matrix matrix = newRandomMatrix(2, 2);
 	//matrix.print(matrix);
 
+	Matrix m1 = newRandomMatrix(2, 2);
+	m1.print(m1);
+	Matrix m2 = newRandomMatrix(2, 2);
+	m2.print(m2);
+	Matrix product = matrix_mult(m1, m2);
+	product.print(product);
 
 //	printVector(vector);
 //	Vector vector2 = copyVector(vector);

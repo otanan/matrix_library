@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-/********STRUCTS********/
+/******************************Structs******************************/
+
 typedef struct Vector Vector;
 //Using __function and __field notation to represent "private" functions and variables
 struct Vector {
@@ -15,13 +16,14 @@ struct Vector {
 	bool __colVec__;
 
 	//"METHODS"
+	Vector (*copy)(Vector self);
 	//Getters
 	int (*dim)(Vector self); //Most fundamental getter function, isNullVec relies on this result
 	bool (*isNull)(Vector self);
 	bool (*isColVec) (Vector self);
 	bool (*isOutOfBounds)(Vector self, int row);
 	float (*getElem)(Vector self, int entry);
-	Vector (*copy)(Vector self);
+	bool (*isEqualTo)(Vector self, Vector other);
 	//Printers
 	void (*print)(Vector self);
 	//Setters
@@ -34,8 +36,10 @@ struct Vector {
 };
 
 
-/*********FUNCTION PROTOTYPES**************/
-/**********General Functionality**********/
+/******************************PROTOTYPES******************************/
+
+
+/******************************General Functionality******************************/
 //General functionality also serves as a category for helper functions
 float *copyArray(float *, int len);
 //Essentially scaling a vector, but kept as array scale so it can be used by matrices
@@ -44,7 +48,8 @@ void scaleArray(float *, int len, float scale);
 //Is used for random functionality in creating a vector
 float randomFloat(void);
 
-/**********CONSTRUCTORS**********/
+
+/******************************Constructors******************************/
 Vector newVector(int m, bool colVec);
 //Converting constructors
 Vector toVector(float *, int m);
@@ -53,27 +58,30 @@ Vector newRandomVector(int m);
 
 //Copies a vector over
 Vector __copyVector__(Vector);
-/*******Getters*********/
+
+
+/******************************Getters******************************/
 bool __isNullVector__(Vector self);
 bool __isColVec__(Vector self);
 bool __isVectorOutOfBounds__(Vector self, int row);
 int __getVectorDimension__(Vector self);
 //Handles accessing the pointer arrays, returns elements
 float __getVectorElem__(Vector, int entry);
-
+//Returns whether both vectors are equal to each other
+bool __isVectorEqualTo__(Vector, Vector);
 bool areOrthogonal(Vector, Vector);
 
 
-/****Printers*******/
+/******************************Printers******************************/
 void __printVector__(Vector);
 
 
 
-/******Setters***********/
+/******************************Setters******************************/
 void __setVectorElem__(Vector, int row, float value);
 
 
-/*******Operations*******/
+/******************************Operations******************************/
 void __transposeVector__(Vector *);
 void __scaleVector__(Vector, float scale);
 void __normalizeVector__(Vector, int norm);
