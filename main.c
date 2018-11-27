@@ -1,4 +1,9 @@
+//Header guards for including matrix.h
+#ifndef MATRIX_H
+#define MATRIX_H
 #include "matrix.h"
+#endif
+
 #include "benchmark.h"
 #include "file.h"
 
@@ -46,6 +51,8 @@
 
 //Consider changing calloc/malloc to check whether we're creating a new object vs converting one
 
+//Why does setEntries in vector.c require free?
+
 //MAIN
 int main() {
 	//Some output padding
@@ -54,26 +61,7 @@ int main() {
 	//benchmark_general(__matrix_test__);
 	//benchmark_general_multi(__matrix_test__, 1000);
 
-	//Matrix matrix = createRandomMatrix(2, 5);
-	//RowReduce(matrix);
-	//float elements[6] = {2, 3, 4, 1, -12, 2.5};
-
-
-
-	//readFile();
-
-//	printVector(vector);
-//	Vector vector2 = copyVector(vector);
-//	transposeVector(&vector2);
-//	printVector(vector2);
-//	Matrix matrix = vector_mult(vector, vector2);
-	//printMatrix(matrix);
-	//Matrix matrix = toMatrix(elements, 2, 3);
-	//Vector v1 = toVector(elements, 2);
-	//Vector v2 = toVector(elements2, 2);
-	//printMatrix(matrix);
-	//transpose(&matrix);
-	//printMatrix(matrix);
+	readFile();
 
 
 	printf("\n");

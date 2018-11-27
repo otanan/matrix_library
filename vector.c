@@ -213,7 +213,8 @@ void __setVectorElem__(Vector self, int index, float value) {
 void __setEntries__(Vector self, float *entries) {
 	if(self.isNull(self))
 		return;
-
+	//free is necessary to change the pointer
+	free(self.__entries__ );
 	self.__entries__ = copyArray(entries, self.dim(self));
 }
 

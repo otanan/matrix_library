@@ -306,7 +306,6 @@ Matrix matrix_mult(Matrix m1, Matrix m2) {
 
 	//Prepares the dimensions of the product
 	//and initializes the matrix
-
 	Matrix product = newMatrix(m1.m, m2.n);
 	//Multiplication begins here
 	for(int row = 1; row <= product.m; row++) {
