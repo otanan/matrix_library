@@ -5,6 +5,7 @@
 const Vector NULL_VECTOR = {-1};
 
 /******************************General Functionality******************************/
+//Effectively adapts the memcpy to use a length rather than a memory size argument
 float *copyArray(float *a, int len) {
 	if(len <= 0) {
 		printf("Invalid array length.\n");	
@@ -30,7 +31,7 @@ void scaleArray(float *a, int len, float scale) {
 }
 
 float randomFloat() {
-	static const float UPPER_LIMIT = 5;
+	const float UPPER_LIMIT = 5;
 	static bool seedSet = false;
 
 	if(!seedSet) {
@@ -47,9 +48,8 @@ Vector newVector(int m, bool colVec) {
 		printf("Attempting to create an undefined vector.\n");
 		return NULL_VECTOR;
 	}
-
-	float size = m * sizeof(float);
-	Vector self = {m, malloc(size), colVec};
+	//Use of calloc rather than malloc to immediately initalize entries to 0
+	Vector self = {m, calloc(m, sizeof(float)), colVec};
 	//Point methods to the function pointers
 	self.copy = __copyVector__;
 	//Getters
@@ -59,18 +59,17 @@ Vector newVector(int m, bool colVec) {
 	self.isOutOfBounds = __isVectorOutOfBounds__;
 	self.getElem = __getVectorElem__;
 	self.isEqualTo = __isVectorEqualTo__;
+	self.getEntries = __getEntries__;
 	//Printers
 	self.print = __printVector__;
 	//Setters
 	self.setElem = __setVectorElem__;
+	self.setEntries = __setEntries__;
 	//Operations
 	self.scale = __scaleVector__;
 	self.normalize = __normalizeVector__;
 	self.pnorm = __pnorm__;
 	self.transpose = __transposeVector__;
-	//Initialize the vector's entries to 0
-	for(int index = 1; index <= self.__m__; index++) 
-		self.setElem(self, index, 0);
 	
 	return self;
 }
@@ -82,8 +81,7 @@ Vector toVector(float *a, int m) {
 	}
 
 	Vector self = newVector(m, true);
-	for(int i = 1; i <=m; i++)
-		self.setElem(self, i, a[i - 1]);
+	self.setEntries(self, a);
 
 	return self;
 }
@@ -93,12 +91,12 @@ Vector newRandomVector(int m) {
 		printf("Cannot create a random vector of negative dimension.\n");
 		return NULL_VECTOR;
 	}
-	//Loads an array of random floats and submits it to converting function
-	float *elements = malloc(sizeof(float) * m);
-	for(int i = 0; i < m; i++)
-		elements[i] = randomFloat();
+	//Similar overhead to creating an array of random floats and using conversion constructor
+	Vector vector = newVector(m, true);
+	for(int index = 1; index <= m; index++)
+		vector.setElem(vector, index, randomFloat());
 
-	return toVector(elements, m);
+	return vector;
 }
 
 Vector __copyVector__(Vector self) {
@@ -109,7 +107,7 @@ Vector __copyVector__(Vector self) {
 	//Initializes the copy
 	Vector copy = newVector(self.dim(self), self.isColVec(self));
 	//Copies the entries
-	copy.__entries__ = copyArray(self.__entries__, self.dim(self));
+	copy.setEntries(copy, self.getEntries(self));
 
 	return copy;
 }
@@ -171,6 +169,13 @@ bool __isVectorEqualTo__(Vector self, Vector other) {
 	return true;
 }
 
+float *__getEntries__(Vector self) {
+	if(self.isNull(self))
+		return NULL;
+
+	return self.__entries__;
+}
+
 bool areOrthogonal(Vector v1, Vector v2) {
 	if(v1.isNull(v1) || v2.isNull(v2)) {
 		printf("Using null vectors.\n");
@@ -203,6 +208,13 @@ void __setVectorElem__(Vector self, int index, float value) {
 		return;
 
 	self.__entries__[index - 1] = value;
+}
+
+void __setEntries__(Vector self, float *entries) {
+	if(self.isNull(self))
+		return;
+
+	self.__entries__ = copyArray(entries, self.dim(self));
 }
 
 /******************************Operations******************************/

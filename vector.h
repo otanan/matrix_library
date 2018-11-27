@@ -24,10 +24,12 @@ struct Vector {
 	bool (*isOutOfBounds)(Vector self, int row);
 	float (*getElem)(Vector self, int entry);
 	bool (*isEqualTo)(Vector self, Vector other);
+	float *(*getEntries)(Vector self);
 	//Printers
 	void (*print)(Vector self);
 	//Setters
 	void (*setElem)(Vector self, int row, float value);
+	void (*setEntries)(Vector self, float *entries);
 	//Operations
 	void (*scale)(Vector self, float scale);
 	void (*normalize)(Vector self, int norm);
@@ -69,6 +71,7 @@ int __getVectorDimension__(Vector self);
 float __getVectorElem__(Vector, int entry);
 //Returns whether both vectors are equal to each other
 bool __isVectorEqualTo__(Vector, Vector);
+float *__getEntries__(Vector self);
 bool areOrthogonal(Vector, Vector);
 
 
@@ -79,6 +82,10 @@ void __printVector__(Vector);
 
 /******************************Setters******************************/
 void __setVectorElem__(Vector, int row, float value);
+//Takes in an array and overwrites the entries to that of the array
+//note that the array length is implied by the vector dimension
+//serves mostly as a helper function for toVector
+void __setEntries__(Vector self, float *entries);
 
 
 /******************************Operations******************************/

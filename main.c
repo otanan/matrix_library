@@ -1,5 +1,6 @@
 #include "matrix.h"
 #include "benchmark.h"
+#include "file.h"
 
 //TODO
 //Overhead from recalling error checking several times in for loops
@@ -41,29 +42,25 @@
 
 //Find out how free works on structs, potentially make a custom free method for each struct
 
+//Initialize NULL_VECTOR and NULL_MATRIX to point to an error handling method rather than doing error checking
+
+//Consider changing calloc/malloc to check whether we're creating a new object vs converting one
+
 //MAIN
 int main() {
 	//Some output padding
 	printf("\n\n\n");
 	extern const Vector NULL_VECTOR;
 	//benchmark_general(__matrix_test__);
+	//benchmark_general_multi(__matrix_test__, 1000);
 
 	//Matrix matrix = createRandomMatrix(2, 5);
 	//RowReduce(matrix);
 	//float elements[6] = {2, 3, 4, 1, -12, 2.5};
 
-	//float elements[2] = {1, 1};
 
-	//Vector vector = toVector(elements, 6);
-	//Matrix matrix = newRandomMatrix(2, 2);
-	//matrix.print(matrix);
 
-	Matrix m1 = newRandomMatrix(2, 2);
-	m1.print(m1);
-	Matrix m2 = newRandomMatrix(2, 2);
-	m2.print(m2);
-	Matrix product = matrix_mult(m1, m2);
-	product.print(product);
+	//readFile();
 
 //	printVector(vector);
 //	Vector vector2 = copyVector(vector);

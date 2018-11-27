@@ -17,8 +17,6 @@ Matrix newMatrix(int m, int n) {
 	//lists of lists and the columns are lists, the memory size
 	//is different
 	float rowSize = m * sizeof(float *);
-	float colSize = n * sizeof(float);
-
 	self.__rows__ = malloc(rowSize);
 
 	//"METHODS"
@@ -47,11 +45,8 @@ Matrix newMatrix(int m, int n) {
 	self.addScaledRows = __addScaledRows__;
 
 	for(int row = 1; row <= m; row++) {
-		//Allocates memory for each row vector
-		*(self.__rows__ + (row - 1)) = malloc(colSize);
-
-		for(int col = 1; col <= n; col++)
-			self.setElem(self, row, col, 0);
+		//Allocates memory for each row vector, initialized to 0s for entries
+		*(self.__rows__ + (row - 1)) = calloc(n, sizeof(float));
 	}
 
 	return self;
@@ -63,13 +58,12 @@ Matrix toMatrix(float *a, int m, int n) {
 		return NULL_MATRIX;
 	}
 	//Must alloc memory to avoid "segmentation  fault: 11"
-	Matrix self = newMatrix(m, n);//{m, n, malloc(sizeof(float) * m * n)};
+	Matrix self = newMatrix(m, n);
 	//Sets the pointer for each row to parts of the area
 	//Jumps across the array passed in to turn the 1d array into a 
 	//2d array
-	for(int i = 0; i < m; i++)
-		*(self.__rows__ + i) = (a + (n * i));
-
+	for(int row = 1; row <= self.m; row++)
+		self.setRow(self, row, (a + (n * (row - 1))));
 
 	return self;
 }
@@ -80,11 +74,13 @@ Matrix newRandomMatrix(int m, int n) {
 		return NULL_MATRIX;
 	}
 
-	float *elements = malloc(sizeof(float) * m * n);
-	for(int i = 0; i < m * n; i++)
-		elements[i] = randomFloat();
+	Matrix self = newMatrix(m, n);
+	for(int row = 1; row <= m; row++) {
+		for(int col = 1; col <= n; col++) 
+			self.setElem(self, row, col, randomFloat());
+	}
 
-	return toMatrix(elements, m, n);
+	return self;
 
 }
 
@@ -94,9 +90,9 @@ Matrix __copyMatrix__(Matrix self) {
 
 	Matrix copy = newMatrix(self.m, self.n);
 
-	for(int row = 1; row <= copy.m; row++) {
-		*(copy.__rows__ + (row - 1)) = copyArray(*(self.__rows__ + (row - 1)), copy.n);
-	}
+	for(int row = 1; row <= copy.m; row++)
+		copy.setRow(copy, row, self.getRow(self, row));
+	
 
 	return copy;
 }
@@ -183,13 +179,12 @@ bool __isMatrixEqualTo__(Matrix self, Matrix other) {
 		return true;
 	else if(self.m != other.m || self.n != other.n)
 		return false;
-	//Loops through rows, grabs each row as a row vector
-	//and implements usage of vector comparison to do equality
-	for(int row = 1; row <= self.m; row++) {
-		Vector currentRow = self.getRowVector(self, row);
 
-		if(!currentRow.isEqualTo(currentRow, other.getRowVector(other, row)))
-			return false;
+	for(int row = 1; row <= self.m; row++) {
+		for(int col = 1; col <= self.n; col++) {
+			if(self.getElem(self, row, col) != other.getElem(other, row, col))
+				return false;
+		}
 	}
 
 	return true;
@@ -371,12 +366,10 @@ void __addScaledRows__(Matrix self, int row1, float scale1, int row2, float scal
 }
 
 void __matrix_test__() {
-	for(int i = 1; i <= 100; i++) {
-		Matrix m1 = newRandomMatrix(i, i);
-		Matrix m2 = newRandomMatrix(i, i);
-		matrix_mult(m1, m2);
 
-		m1.print(m1);
-		m2.print(m2);
-	}
+	Matrix m1 = newRandomMatrix(4, 4);
+	Matrix m2 = newRandomMatrix(4, 4);
+	m1.isEqualTo(m1, m2);
+	//m1.print(m1);
+	//Matrix m2 = m1.copy(m1);
 }
