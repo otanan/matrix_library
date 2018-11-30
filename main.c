@@ -5,7 +5,7 @@
 #endif
 
 #include "benchmark.h"
-#include "file.h"
+//#include "file.h" //Currently not working properly and removed implementation of it
 
 //TODO
 //Overhead from recalling error checking several times in for loops
@@ -53,6 +53,10 @@
 
 //Why does setEntries in vector.c require free?
 
+//Improve file reading functionality and error checking in file.c
+
+//Scale matrix, float == 0, just return a 0 matrix?
+
 //MAIN
 int main() {
 	//Some output padding
@@ -60,9 +64,8 @@ int main() {
 	extern const Vector NULL_VECTOR;
 	//benchmark_general(__matrix_test__);
 	//benchmark_general_multi(__matrix_test__, 1000);
-
-	readFile();
-
+	//Read file belongs to file.h, implementation is currently not working properly
+	//readFile();
 
 	printf("\n");
 	return 0;

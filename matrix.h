@@ -29,6 +29,7 @@ struct Matrix {
 	void (*setElem)(Matrix self, int row, int col, float val);
 	void (*setRow)(Matrix self, int row, float *);
 	//Operations
+	void (*scale)(Matrix self, float scale);
 	void (*transpose)(Matrix *self);
 	//Elementary Operations
 	void (*swapRows)(Matrix self, int row1, int row2);
@@ -77,6 +78,7 @@ void __setRow__(Matrix, int row, float *);
 
 
 /******************************Operations******************************/
+void __scaleMatrix__(Matrix self, float scale);
 void __transposeMatrix__(Matrix *self);
 //Vector multiplication is most general type to decide whether the operation is
 //either an inner product or outer product

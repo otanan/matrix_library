@@ -1,11 +1,11 @@
 matrix
-2 2
-0 1
+2 2 A
 1 0
+0 1
 
 matrix
-2 3
-2 30 30
-1 1 1
+2 3 B
+40 23 2.1
+-9 10 2
 
-multiply
+multiply A B

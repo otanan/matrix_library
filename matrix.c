@@ -37,6 +37,7 @@ Matrix newMatrix(int m, int n) {
 	self.setElem = __setMatrixElem__;
 	self.setRow = __setRow__;
 	//Operations
+	self.scale = __scaleMatrix__;
 	self.transpose = __transposeMatrix__;
 	//Elementary Operations
 	self.swapRows = __swapRows__;
@@ -253,6 +254,15 @@ void __setRow__(Matrix self, int row, float *a) {
 }
 
 /******************************Operations******************************/
+void __scaleMatrix__(Matrix self, float scale) {
+	if(self.isNull(self))
+		return;
+	//Scales entire matrix by looping through each row and scaling them
+	for(int row = 1; row <= self.m; row++) {
+		self.scaleRow(self, row, scale);
+	}
+}
+
 void __transposeMatrix__(Matrix *self) {
 	if(self->isNull(*self)) {
 		printf("Attempting to transpose a null matrix.\n");
