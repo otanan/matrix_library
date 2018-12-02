@@ -6,21 +6,21 @@ const Vector NULL_VECTOR = {-1};
 
 /******************************General Functionality******************************/
 //Effectively adapts the memcpy to use a length rather than a memory size argument
-float *copyArray(float *a, int len) {
+double *copyArray(double *a, int len) {
 	if(len <= 0) {
 		printf("Invalid array length.\n");	
 		return NULL;
 	}
 	//Size of the array to be copied
-	float size = len * sizeof(float);
+	double size = len * sizeof(double);
 	//Allocates memory corresponding to the length of the array
-	float *copy = malloc(size);
+	double *copy = malloc(size);
 	memcpy(copy, a, size);
 
 	return copy;
 }
 
-void scaleArray(float *a, int len, float scale) {
+void scaleArray(double *a, int len, double scale) {
 	if(len <= 0) {
 		printf("Invalid array length.\n");	
 		return;
@@ -30,8 +30,8 @@ void scaleArray(float *a, int len, float scale) {
 		*(a + i) *= scale;
 }
 
-float randomFloat() {
-	const float UPPER_LIMIT = 5;
+double randomDouble() {
+	const double UPPER_LIMIT = 5;
 	static bool seedSet = false;
 
 	if(!seedSet) {
@@ -49,7 +49,7 @@ Vector newVector(int m, bool colVec) {
 		return NULL_VECTOR;
 	}
 	//Use of calloc rather than malloc to immediately initalize entries to 0
-	Vector self = {m, calloc(m, sizeof(float)), colVec};
+	Vector self = {m, calloc(m, sizeof(double)), colVec};
 	//Point methods to the function pointers
 	self.copy = __copyVector__;
 	//Getters
@@ -74,7 +74,7 @@ Vector newVector(int m, bool colVec) {
 	return self;
 }
 
-Vector toVector(float *a, int m) {
+Vector toVector(double *a, int m) {
 	if(m <= 0) {
 		printf("Giving an invalid vector length.\n");
 		return NULL_VECTOR;
@@ -91,10 +91,10 @@ Vector newRandomVector(int m) {
 		printf("Cannot create a random vector of negative dimension.\n");
 		return NULL_VECTOR;
 	}
-	//Similar overhead to creating an array of random floats and using conversion constructor
+	//Similar overhead to creating an array of random doubles and using conversion constructor
 	Vector vector = newVector(m, true);
 	for(int index = 1; index <= m; index++)
-		vector.setElem(vector, index, randomFloat());
+		vector.setElem(vector, index, randomDouble());
 
 	return vector;
 }
@@ -141,7 +141,7 @@ bool __isVectorOutOfBounds__(Vector self, int row) {
 	return false;
 }
 
-float __getVectorElem__(Vector self, int index) {
+double __getVectorElem__(Vector self, int index) {
 	//Note that either of these messages being true will print an error message
 	if(self.isNull(self) || self.isOutOfBounds(self, index))
 		return 0;
@@ -169,7 +169,7 @@ bool __isVectorEqualTo__(Vector self, Vector other) {
 	return true;
 }
 
-float *__getEntries__(Vector self) {
+double *__getEntries__(Vector self) {
 	if(self.isNull(self))
 		return NULL;
 
@@ -203,14 +203,14 @@ void __printVector__(Vector self) {
 }
 
 /******************************Setters******************************/
-void __setVectorElem__(Vector self, int index, float value) {
+void __setVectorElem__(Vector self, int index, double value) {
 	if(self.isNull(self) || self.isOutOfBounds(self, index))
 		return;
 
 	self.__entries__[index - 1] = value;
 }
 
-void __setEntries__(Vector self, float *entries) {
+void __setEntries__(Vector self, double *entries) {
 	if(self.isNull(self))
 		return;
 	//free is necessary to change the pointer
@@ -228,14 +228,14 @@ void __transposeVector__(Vector *self) {
 	self->__colVec__ = !self->__colVec__;
 }
 
-void __scaleVector__(Vector self, float scale) {
+void __scaleVector__(Vector self, double scale) {
 	if(self.isNull(self))
 		return;
 
 	scaleArray(self.__entries__, self.dim(self), scale);
 }
 
-float __pnorm__(Vector self, int p) {
+double __pnorm__(Vector self, int p) {
 	//Norms are strictly nonnegative, this indicates a point of failure
 	if(self.isNull(self))
 		return -1;
@@ -244,7 +244,7 @@ float __pnorm__(Vector self, int p) {
 		return -1;
 	}
 
-	float norm = 0;
+	double norm = 0;
 	for(int i = 1; i <= self.dim(self); i++) 
 		norm += pow(self.getElem(self, i), p);
 	
@@ -255,11 +255,11 @@ void __normalizeVector__(Vector self, int norm) {
 	if(self.isNull(self))
 		return;
 
-	float magnitude = self.pnorm(self, norm);
+	double magnitude = self.pnorm(self, norm);
 	self.scale(self, 1/magnitude);
 }
 
-float dot_product(Vector v1, Vector v2) {
+double dot_product(Vector v1, Vector v2) {
 	//Vectors must be of same dimension
 	//and they must be well defined vectors
 	if(v1.isNull(v1) || v2.isNull(v2))
@@ -270,7 +270,7 @@ float dot_product(Vector v1, Vector v2) {
 	 }
 
 	//Initializes the product
-	float dot_product = 0;
+	double dot_product = 0;
 	//Loops through the vectors
 	for(int row = 1; row <= v1.dim(v1); row++)
 		dot_product += v1.getElem(v1, row) * v2.getElem(v2, row);

@@ -5,7 +5,7 @@
 #endif
 
 #include "benchmark.h"
-//#include "file.h" //Currently not working properly and removed implementation of it
+#include "matrix_reader.h"
 
 //TODO
 //Overhead from recalling error checking several times in for loops
@@ -57,6 +57,17 @@
 
 //Scale matrix, float == 0, just return a 0 matrix?
 
+//URGENT:
+//Renaming source files and handling separation
+//Organizing directories
+//Fleshing out makefile
+//Coordinate file independence to be properly used in isolation
+//Documentation
+//Error handling
+//Adapt entire library for doubles
+
+//Matrix reader, improve the labeling functionality (it only plays nicely with capital letters)
+
 //MAIN
 int main() {
 	//Some output padding
@@ -65,7 +76,15 @@ int main() {
 	//benchmark_general(__matrix_test__);
 	//benchmark_general_multi(__matrix_test__, 1000);
 	//Read file belongs to file.h, implementation is currently not working properly
-	//readFile();
+	
+	FILE *fp = fopen("input.txt", "r");
+	read_matrix_file(fp);
+
+	// Matrix matrix = newRandomMatrix(2, 20);
+	// matrix.print(matrix);
+
+
+	fclose(fp);
 
 	printf("\n");
 	return 0;

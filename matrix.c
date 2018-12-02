@@ -16,7 +16,7 @@ Matrix newMatrix(int m, int n) {
 	//Needs to calculate the correct sizes, since the rows
 	//lists of lists and the columns are lists, the memory size
 	//is different
-	float rowSize = m * sizeof(float *);
+	double rowSize = m * sizeof(double *);
 	self.__rows__ = malloc(rowSize);
 
 	//"METHODS"
@@ -47,13 +47,13 @@ Matrix newMatrix(int m, int n) {
 
 	for(int row = 1; row <= m; row++) {
 		//Allocates memory for each row vector, initialized to 0s for entries
-		*(self.__rows__ + (row - 1)) = calloc(n, sizeof(float));
+		*(self.__rows__ + (row - 1)) = calloc(n, sizeof(double));
 	}
 
 	return self;
 }
 
-Matrix toMatrix(float *a, int m, int n) {
+Matrix toMatrix(double *a, int m, int n) {
 	if(m <= 0 || n <= 0) {
 		printf("Attempting to create an undefined matrix.\n");
 		return NULL_MATRIX;
@@ -78,7 +78,7 @@ Matrix newRandomMatrix(int m, int n) {
 	Matrix self = newMatrix(m, n);
 	for(int row = 1; row <= m; row++) {
 		for(int col = 1; col <= n; col++) 
-			self.setElem(self, row, col, randomFloat());
+			self.setElem(self, row, col, randomDouble());
 	}
 
 	return self;
@@ -118,7 +118,7 @@ bool __isMatrixOutOfBounds__(Matrix self, int row, int col) {
 	return false;
 }
 
-float __getMatrixElem__(Matrix self, int row, int col) {
+double __getMatrixElem__(Matrix self, int row, int col) {
 	if(self.isNull(self) || self.isOutOfBounds(self, row, col))
 		return 0;
 	//Innermost term will access the correct row list
@@ -128,19 +128,19 @@ float __getMatrixElem__(Matrix self, int row, int col) {
 	return ( *(*(self.__rows__ + (row - 1)) + (col - 1)) );
 }
 
-float *__getRow__(Matrix self, int row) {
+double *__getRow__(Matrix self, int row) {
 	if(self.isNull(self) || self.isOutOfBounds(self, row, 1))
 		return NULL;
 
 	return copyArray(*((self.__rows__) + (row - 1)), self.n);
 }
 
-float *__getCol__(Matrix self, int col) {
+double *__getCol__(Matrix self, int col) {
 	if(self.isNull(self) || self.isOutOfBounds(self, 1, col))
 		return NULL;
 	//Note that columns cannot be handled the same as rows
 	//since I need to jump array to array versus grabbing a single one
-	float *a = malloc(self.m * sizeof(float));
+	double *a = malloc(self.m * sizeof(double));
 
 	for(int row = 1; row <= self.m; row++) 
 		*(a + row - 1) = self.getElem(self, row, col);
@@ -234,14 +234,14 @@ void __printMatrix__(Matrix self) {
 
 
 /******************************Setters******************************/
-void __setMatrixElem__(Matrix self, int row, int col, float value) {
+void __setMatrixElem__(Matrix self, int row, int col, double value) {
 	if(self.isNull(self) || self.isOutOfBounds(self, row, col))
 		return;
 	//Uses the same pointer arithmetic/logic as getMatrixElem
 	( *(*(self.__rows__ + (row - 1)) + (col - 1)) ) = value;	
 }
 
-void __setRow__(Matrix self, int row, float *a) {
+void __setRow__(Matrix self, int row, double *a) {
 	if(self.isNull(self) || self.isOutOfBounds(self, row, 1)) {
 		printf("Attempting to set an invalid row.\n");
 		return;
@@ -250,11 +250,11 @@ void __setRow__(Matrix self, int row, float *a) {
 	//Fetches the address to the corresponding row of the matrix
 	//Copies the array passed in, to the row of the matrix
 	//Note that the length of the array passed in must match the amount of columns in the matrix
-	memcpy(*(self.__rows__ + (row - 1)), a, sizeof(float) * self.n);
+	memcpy(*(self.__rows__ + (row - 1)), a, sizeof(double) * self.n);
 }
 
 /******************************Operations******************************/
-void __scaleMatrix__(Matrix self, float scale) {
+void __scaleMatrix__(Matrix self, double scale) {
 	if(self.isNull(self))
 		return;
 	//Scales entire matrix by looping through each row and scaling them
@@ -296,7 +296,7 @@ Matrix vector_mult(Vector v1, Vector v2) {
 	//This is the inner product
 	if(!v1.isColVec(v1) && v2.isColVec(v2)) {
 		//Must malloc to prevent automatic variable from being disposed after function call
-		float *elements = malloc(sizeof(float));
+		double *elements = malloc(sizeof(double));
 		elements[0] = dot_product(v1, v2);
 		//Returns a 1x1 matrix with the result inside
 		return toMatrix(elements, 1, 1);
@@ -340,12 +340,12 @@ void __swapRows__(Matrix self, int row1, int row2) {
 	row1 -= 1;
 	row2 -= 1;
 	//Simply swaps the pointers directing to each row "vector"
-	float* temp = self.__rows__[row1];
+	double* temp = self.__rows__[row1];
 	self.__rows__[row1] = self.__rows__[row2];
 	self.__rows__[row2] = temp;
 }
 
-void __scaleRow__(Matrix self, int row, float scale) {
+void __scaleRow__(Matrix self, int row, double scale) {
 	if(self.isNull(self) || self.isOutOfBounds(self, row, 1))
 		return;
 
@@ -362,7 +362,7 @@ void __addRows__(Matrix self, int row1, int row2) {
 	
 }
 
-void __addScaledRows__(Matrix self, int row1, float scale1, int row2, float scale2) {
+void __addScaledRows__(Matrix self, int row1, double scale1, int row2, double scale2) {
 	//Adding a scaled row of 0 is just adding 0 to each term, waste of time
 	if(scale2 == 0)
 		return;

@@ -1,11 +1,11 @@
-matrix
-2 2 A
+matrix A
+2 2
 1 0
 0 1
 
-matrix
-2 3 B
-40 23 2.1
--9 10 2
+matrix B
+2 2
+42 -3
+-1.2 12
 
 multiply A B
