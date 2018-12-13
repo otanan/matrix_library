@@ -33,6 +33,10 @@ int read_matrix_file(FILE* fp) {
 
             readVector(fp);
 
+        } else if(areSameString("matrixEqual", line)) {
+
+            checkMatrixEquality(fp);
+
         }
 
    }
@@ -74,6 +78,17 @@ void readMatrix(FILE *fp) {
     setMatrix(matrix, label[0]);
 }
 
+void checkMatrixEquality(FILE *fp) {
+    char label1[2];
+    char label2[2];
+
+    next(fp, label1);
+    next(fp, label2);
+
+    Matrix m1 = getMatrix(label1[0]);
+    printf("%c %s %c\n", label1[0], m1.isEqualTo(m1, getMatrix(label2[0])) ? "==" : "=/=", label2[0]);
+}
+
 void multiply(FILE* fp) {
     char label1[2];
     char label2[2];
@@ -98,6 +113,7 @@ void multiply(FILE* fp) {
 
 void setMatrix(Matrix matrix, char label) {
     matrices[label - 'A'] = matrix;
+    matrixCount++;
 }
 
 Matrix getMatrix(char label) {
