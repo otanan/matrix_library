@@ -103,7 +103,7 @@ Matrix IDENTITY(int dim) {
 	//Saves identity matrices already constructed in case they're used often
 	static const int CAPACITY = 10;
 	static int free_space = CAPACITY;
-	
+
 	static Matrix loaded_identities[CAPACITY];
 	//If we've already constructed some, we have them saved in this list
 	//check the list to see if we can find the created identity already
@@ -323,17 +323,20 @@ Matrix __matrixPower__(Matrix self, int pow) {
 	if(pow < 0) {
 		printf("Cannot invert matrix.\n");
 		return NULL_MATRIX;
-	} else if(pow == 1) {
-		return IDENTITY(self.m);
-	}
 
-	Matrix current = self.copy(self);
-	Matrix temp;
-	for(int i = 1; i < pow; i++) {
-		temp = current;
-		current = matrix_mult(self, current);
-		free(&temp);
+	} else if(pow == 0) {
+		//Raising the matrix to the 0th power is equivalent to making it the identity
+		return IDENTITY(self.m);
+	} else if(pow == 1) {
+		//Raising the matrix to the 1st power is equivalent to multiplying it by the identity
+		return self;
 	}
+	//The power is nonnegative and greater than 1
+	Matrix current = self.copy(self);
+	//Begin for loop at 1 since we begin by squaring the matrix
+	for(int i = 1; i < pow; i++)
+		current = matrix_mult(self, current);
+	
 
 	return current;
 

@@ -39,6 +39,7 @@
 
 //ADD SCALED ROWS
 	//Consider checking if either scale is 1 to skip steps
+	//Better check if one of the scales is 0
 
 //Consider optimizing "isMatrixEqualTo" by avoiding vector conversion?
 
@@ -68,6 +69,15 @@
 
 //Matrix reader, improve the labeling functionality (it only plays nicely with capital letters)
 
+//Improve equality command syntax (rewinding commands)
+//matrix subtraction, 
+//matrix powers
+
+//Implement filled slots list for holding vectors or matrices
+//maybe a Linear union which holds either a matrix or a vector? make a list of those to hold either elem
+
+//Is memory management needed in __matrixPower__?
+
 //MAIN
 int main() {
 	//Some output padding
@@ -77,14 +87,17 @@ int main() {
 	//benchmark_general_multi(__matrix_test__, 1000);
 	//Read file belongs to file.h, implementation is currently not working properly
 	
-	FILE *fp = fopen("input.txt", "r");
-	read_matrix_file(fp);
+	// FILE *fp = fopen("input.txt", "r");
+	// read_matrix_file(fp);
 
-	// Matrix matrix = newRandomMatrix(2, 20);
-	// matrix.print(matrix);
+	double elements[4] = {2, 0, 0, 3};
+	Matrix matrix = toMatrix(elements, 2, 2);
+	matrix.print(matrix);
 
+	Matrix result = matrix.pow(matrix, 3);
+	result.print(result);
 
-	fclose(fp);
+	// fclose(fp);
 
 	printf("\n");
 	return 0;
