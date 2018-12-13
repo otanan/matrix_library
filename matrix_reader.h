@@ -22,3 +22,5 @@ void setMatrix(Matrix, char label);
 Matrix getMatrix(char label);
 
 void multiply(FILE *fp);
+//Prints whether two matrices are equal
+void checkMatrixEquality(FILE *fp);

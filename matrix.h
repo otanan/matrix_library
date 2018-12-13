@@ -31,6 +31,7 @@ struct Matrix {
 	//Operations
 	void (*scale)(Matrix self, double scale);
 	void (*transpose)(Matrix *self);
+	Matrix (*pow)(Matrix self, int pow);
 	//Elementary Operations
 	void (*swapRows)(Matrix self, int row1, int row2);
 	void (*scaleRow)(Matrix self, int row, double scale);
@@ -45,6 +46,11 @@ Matrix toMatrix(double *, int m, int n);
 Matrix newRandomMatrix(int m, int n);
 
 Matrix __copyMatrix__(Matrix self);
+//This function either: returns a previously used identity matrix of the corresponding dimension
+//or, if never created before, constructs a new one, and then saves it into a list
+//the list is then checked every time an identity is needed in case it was previously constructed
+//saving time and memory
+Matrix IDENTITY(int dim);
 
 
 /******************************Getters******************************/
@@ -65,7 +71,6 @@ bool __isMatrixEqualTo__(Matrix self, Matrix other);
 bool __isSymmetric__(Matrix self);
 
 
-
 /******************************Printers******************************/
 void __printMatrix__(Matrix self);
 
@@ -80,6 +85,7 @@ void __setRow__(Matrix, int row, double *);
 /******************************Operations******************************/
 void __scaleMatrix__(Matrix self, double scale);
 void __transposeMatrix__(Matrix *self);
+Matrix __matrixPower__(Matrix self, int);
 //Vector multiplication is most general type to decide whether the operation is
 //either an inner product or outer product
 Matrix vector_mult(Vector, Vector);

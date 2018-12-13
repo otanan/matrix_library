@@ -39,6 +39,7 @@ Matrix newMatrix(int m, int n) {
 	//Operations
 	self.scale = __scaleMatrix__;
 	self.transpose = __transposeMatrix__;
+	self.pow = __matrixPower__;
 	//Elementary Operations
 	self.swapRows = __swapRows__;
 	self.scaleRow = __scaleRow__;
@@ -96,6 +97,31 @@ Matrix __copyMatrix__(Matrix self) {
 	
 
 	return copy;
+}
+
+Matrix IDENTITY(int dim) {
+	//Saves identity matrices already constructed in case they're used often
+	static const int CAPACITY = 10;
+	static int free_space = CAPACITY;
+	
+	static Matrix loaded_identities[CAPACITY];
+	//If we've already constructed some, we have them saved in this list
+	//check the list to see if we can find the created identity already
+	for(int i = 0; i < 10 - free_space; i++) {
+		if(loaded_identities[i].m == dim)
+			return loaded_identities[i];
+	}
+
+	//The saved identity could not be found and must be created and saved
+	Matrix identity = newMatrix(dim, dim);
+	for(int diag = 1; diag <= dim; diag++)
+		identity.setElem(identity, diag, diag, 1);
+	//If we still have free space, save the identity
+	if(free_space > 0)
+		loaded_identities[10 - free_space--] = identity;
+
+	return identity;
+	
 }
 /******************************Getters******************************/
 bool __isNullMatrix__(Matrix self) {
@@ -281,6 +307,36 @@ void __transposeMatrix__(Matrix *self) {
 	self->__rows__ = temp.__rows__;
 	self->m = temp.m;
 	self->n = temp.n;
+}
+
+Matrix __matrixPower__(Matrix self, int pow) {
+	if(self.isNull(self)) {
+		printf("Attempting to exponentiate a null matrix.\n");
+		return NULL_MATRIX;
+	}
+	//Only square matrices can be exponentiated
+	if(self.m != self.n) {
+		printf("Attempting to exponentiate a non-square matrix");
+		return NULL_MATRIX;
+	}
+
+	if(pow < 0) {
+		printf("Cannot invert matrix.\n");
+		return NULL_MATRIX;
+	} else if(pow == 1) {
+		return IDENTITY(self.m);
+	}
+
+	Matrix current = self.copy(self);
+	Matrix temp;
+	for(int i = 1; i < pow; i++) {
+		temp = current;
+		current = matrix_mult(self, current);
+		free(&temp);
+	}
+
+	return current;
+
 }
 
 Matrix vector_mult(Vector v1, Vector v2) {
