@@ -20,6 +20,8 @@ Matrix newMatrix(int m, int n) {
 	self.__rows__ = malloc(rowSize);
 
 	//"METHODS"
+	self.copy = __copyMatrix__;
+	self.free = __freeMatrix__;
 	//Getters
 	self.isNull = __isNullMatrix__;
 	self.isOutOfBounds = __isMatrixOutOfBounds__;
@@ -28,7 +30,6 @@ Matrix newMatrix(int m, int n) {
 	self.getCol = __getCol__;
 	self.getColVector = __getColVector__;
 	self.getRowVector = __getRowVector__;
-	self.copy = __copyMatrix__;
 	self.isEqualTo = __isMatrixEqualTo__;
 	self.isSymmetric = __isSymmetric__;
 	//Printers
@@ -99,17 +100,32 @@ Matrix __copyMatrix__(Matrix self) {
 	return copy;
 }
 
-Matrix IDENTITY(int dim) {
-	//Saves identity matrices already constructed in case they're used often
-	static const int CAPACITY = 10;
-	static int free_space = CAPACITY;
+void __freeMatrix__(Matrix self) {
+	//Loops through every row and frees them individually
+	for(int i = 0; i < self.m; i++)
+		free(*(self.__rows__ + i));
+	
+	//Frees the list of all rows
+	free(self.__rows__);
+}
 
-	static Matrix loaded_identities[CAPACITY];
+Matrix IDENTITY(int dim) {
+	if(dim <= 0) {
+		printf("Attemping to construct an undefined matrix.\n");
+		//The caller originally wanted some identity functionality, so rather than returning
+		//a null matrix, we return a 2x2 identity matrix
+		return IDENTITY(2);
+	}
+
+	const int CAPACITY = 10;
+	static int usedSpace = 0;
+	//Saves identity matrices already constructed in case they're used often
+	static Matrix loadedIdentities[CAPACITY];
 	//If we've already constructed some, we have them saved in this list
 	//check the list to see if we can find the created identity already
-	for(int i = 0; i < 10 - free_space; i++) {
-		if(loaded_identities[i].m == dim)
-			return loaded_identities[i];
+	for(int i = 0; i < usedSpace; i++) {
+		if(loadedIdentities[i].m == dim)
+			return loadedIdentities[i];
 	}
 
 	//The saved identity could not be found and must be created and saved
@@ -117,12 +133,12 @@ Matrix IDENTITY(int dim) {
 	for(int diag = 1; diag <= dim; diag++)
 		identity.setElem(identity, diag, diag, 1);
 	//If we still have free space, save the identity
-	if(free_space > 0)
-		loaded_identities[10 - free_space--] = identity;
+	if(usedSpace <= CAPACITY)
+		loadedIdentities[usedSpace++] = identity;
 
-	return identity;
-	
+	return identity;	
 }
+
 /******************************Getters******************************/
 bool __isNullMatrix__(Matrix self) {
 	//Gets the dimension of the matrix and inspects it for negativity
@@ -158,7 +174,7 @@ double *__getRow__(Matrix self, int row) {
 	if(self.isNull(self) || self.isOutOfBounds(self, row, 1))
 		return NULL;
 
-	return copyArray(*((self.__rows__) + (row - 1)), self.n);
+	return copyArray(*( self.__rows__ + (row - 1)), self.n);
 }
 
 double *__getCol__(Matrix self, int col) {
@@ -283,6 +299,7 @@ void __setRow__(Matrix self, int row, double *a) {
 void __scaleMatrix__(Matrix self, double scale) {
 	if(self.isNull(self))
 		return;
+
 	//Scales entire matrix by looping through each row and scaling them
 	for(int row = 1; row <= self.m; row++) {
 		self.scaleRow(self, row, scale);
@@ -322,8 +339,8 @@ Matrix __matrixPower__(Matrix self, int pow) {
 
 	if(pow < 0) {
 		printf("Cannot invert matrix.\n");
-		return NULL_MATRIX;
-
+		//Converts to a positive power
+		pow *= -1;
 	} else if(pow == 0) {
 		//Raising the matrix to the 0th power is equivalent to making it the identity
 		return IDENTITY(self.m);
@@ -334,15 +351,19 @@ Matrix __matrixPower__(Matrix self, int pow) {
 	//The power is nonnegative and greater than 1
 	Matrix current = self.copy(self);
 	//Begin for loop at 1 since we begin by squaring the matrix
-	for(int i = 1; i < pow; i++)
-		current = matrix_mult(self, current);
-	
+	for(int i = 1; i < pow; i++) {
+		//Saves the matrix currently being worked on to be freed after
+		Matrix matrixToFree = current;
+		current = matrixMult(self, current);
+		//Frees the matrix
+		matrixToFree.free(matrixToFree);
+	}
 
 	return current;
 
 }
 
-Matrix vector_mult(Vector v1, Vector v2) {
+Matrix vectorMult(Vector v1, Vector v2) {
 	//Either one of the vectors are not defined
 	if(v1.isNull(v1) || v2.isNull(v2))
 		return NULL_MATRIX;
@@ -356,7 +377,7 @@ Matrix vector_mult(Vector v1, Vector v2) {
 	if(!v1.isColVec(v1) && v2.isColVec(v2)) {
 		//Must malloc to prevent automatic variable from being disposed after function call
 		double *elements = malloc(sizeof(double));
-		elements[0] = dot_product(v1, v2);
+		elements[0] = dotProduct(v1, v2);
 		//Returns a 1x1 matrix with the result inside
 		return toMatrix(elements, 1, 1);
 	}
@@ -364,10 +385,10 @@ Matrix vector_mult(Vector v1, Vector v2) {
 	Matrix m1 = toMatrix(v1.__entries__, v1.dim(v1), 1);
 	Matrix m2 = toMatrix(v2.__entries__, 1, v2.dim(v2));
 
-	return matrix_mult(m1, m2);
+	return matrixMult(m1, m2);
 }
 
-Matrix matrix_mult(Matrix m1, Matrix m2) {
+Matrix matrixMult(Matrix m1, Matrix m2) {
 	//Checks if the product is defined
 	//as well if the matrices themselves are defined
 	if(m1.n != m2.m || m1.isNull(m1) || m2.isNull(m2))
@@ -384,7 +405,7 @@ Matrix matrix_mult(Matrix m1, Matrix m2) {
 		for(int col = 1; col <= product.n; col++) {
 			//Grabs the column vector of the second matrix to dot product
 			//with row vector of first matrix
-			product.setElem(product, row, col, dot_product(m1RowVec, m2.getColVector(m2, col)));
+			product.setElem(product, row, col, dotProduct(m1RowVec, m2.getColVector(m2, col)));
 		}	
 	}
 
@@ -406,6 +427,9 @@ void __swapRows__(Matrix self, int row1, int row2) {
 
 void __scaleRow__(Matrix self, int row, double scale) {
 	if(self.isNull(self) || self.isOutOfBounds(self, row, 1))
+		return;
+
+	if(scale == 1)
 		return;
 
 	scaleArray(*(self.__rows__ + (row - 1)), self.n, scale);
@@ -434,7 +458,6 @@ void __addScaledRows__(Matrix self, int row1, double scale1, int row2, double sc
 }
 
 void __matrix_test__() {
-
 	Matrix m1 = newRandomMatrix(4, 4);
 	Matrix m2 = newRandomMatrix(4, 4);
 	m1.isEqualTo(m1, m2);

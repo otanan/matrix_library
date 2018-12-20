@@ -11,10 +11,8 @@
 //Overhead from recalling error checking several times in for loops
 //Checking for null matrix and null vector accessing garbage giving false positives?
 //Make mulitplication identify which product to use
-//Create identity matrices
 //Can I optimize the elementary operations (like addRows)
 //Organize error checking
-//Function previews when typing them in autocomplete for sublime text
 
 //Decide on using structs or struct pointers
 //isNull probably doesn't actually work on a null vector
@@ -26,7 +24,6 @@
 //Potential __init__ function in constructor solely for pointing to methods?
 //use case example is in alternative constructors, or finding way to all link to the same base constructor
 
-//Consider making toVector function just repoint the entries array rather than looping
 //Improve efficiency of toMatrix and toVector since they currently use the default constructor
 //which initializes everything to 0 before initializing arg
 
@@ -37,17 +34,6 @@
 	//there is a predictable pattern to the outcome of an outer product
 	//rather than converting both to matrices and relying on matrix multiplication
 
-//ADD SCALED ROWS
-	//Consider checking if either scale is 1 to skip steps
-	//Better check if one of the scales is 0
-
-//Consider optimizing "isMatrixEqualTo" by avoiding vector conversion?
-
-//Time testing functionality
-	//Improve benchmark
-
-//Find out how free works on structs, potentially make a custom free method for each struct
-
 //Initialize NULL_VECTOR and NULL_MATRIX to point to an error handling method rather than doing error checking
 
 //Consider changing calloc/malloc to check whether we're creating a new object vs converting one
@@ -56,8 +42,6 @@
 
 //Improve file reading functionality and error checking in file.c
 
-//Scale matrix, float == 0, just return a 0 matrix?
-
 //URGENT:
 //Renaming source files and handling separation
 //Organizing directories
@@ -65,7 +49,6 @@
 //Coordinate file independence to be properly used in isolation
 //Documentation
 //Error handling
-//Adapt entire library for doubles
 
 //Matrix reader, improve the labeling functionality (it only plays nicely with capital letters)
 
@@ -76,29 +59,53 @@
 //Implement filled slots list for holding vectors or matrices
 //maybe a Linear union which holds either a matrix or a vector? make a list of those to hold either elem
 
-//Is memory management needed in __matrixPower__?
+//Improve saving and operating on matrices
+	//Consider implementing a dictionary for the matrices
+
+//One long array for matrices for optimization?
+
+void benchmark_test(void);
+void benchmark_test() {
+	benchmark_general(__matrix_test__);
+	benchmark_general_multi(__matrix_test__, 1000);
+}
+
+void matrix_reader_test(void);
+void matrix_reader_test() {
+	//Read file belongs to file.h, implementation is currently not working properly
+	FILE *fp = fopen("input.txt", "r");
+	read_matrix_file(fp);
+
+
+
+
+	fclose(fp);
+}
+
 
 //MAIN
 int main() {
 	//Some output padding
 	printf("\n\n\n");
 	extern const Vector NULL_VECTOR;
-	//benchmark_general(__matrix_test__);
-	//benchmark_general_multi(__matrix_test__, 1000);
-	//Read file belongs to file.h, implementation is currently not working properly
-	
-	// FILE *fp = fopen("input.txt", "r");
-	// read_matrix_file(fp);
+	//benchmark_test(;
+	// matrix_reader_test();
+	/*************/
+	double elements[] = {2, 0, 0, -3};
+	Vector vector = toVector(elements, 4);
+	vector.free(vector);
 
-	double elements[4] = {2, 0, 0, 3};
 	Matrix matrix = toMatrix(elements, 2, 2);
 	matrix.print(matrix);
 
-	Matrix result = matrix.pow(matrix, 3);
-	result.print(result);
+	matrix = matrix.pow(matrix, -2);
+	
+	matrix.print(matrix);
 
-	// fclose(fp);
+	matrix.free(matrix);
 
+
+	/*************/
 	printf("\n");
 	return 0;
 }

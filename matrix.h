@@ -12,6 +12,7 @@ struct Matrix {
 
 	//"METHODS"
 	Matrix (*copy)(Matrix self);
+	void (*free)(Matrix self);
 	//Getters
 	int *(*dim)(Matrix self);
 	bool (*isNull)(Matrix self);
@@ -46,6 +47,9 @@ Matrix toMatrix(double *, int m, int n);
 Matrix newRandomMatrix(int m, int n);
 
 Matrix __copyMatrix__(Matrix self);
+
+void __freeMatrix__(Matrix self);
+
 //This function either: returns a previously used identity matrix of the corresponding dimension
 //or, if never created before, constructs a new one, and then saves it into a list
 //the list is then checked every time an identity is needed in case it was previously constructed
@@ -88,7 +92,7 @@ void __transposeMatrix__(Matrix *self);
 Matrix __matrixPower__(Matrix self, int);
 //Vector multiplication is most general type to decide whether the operation is
 //either an inner product or outer product
-Matrix vector_mult(Vector, Vector);
+Matrix vectorMult(Vector, Vector);
 Matrix matrix_mult(Matrix, Matrix);
 
 

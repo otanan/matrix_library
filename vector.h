@@ -17,6 +17,7 @@ struct Vector {
 
 	//"METHODS"
 	Vector (*copy)(Vector self);
+	void (*free)(Vector self);
 	//Getters
 	int (*dim)(Vector self); //Most fundamental getter function, isNullVec relies on this result
 	bool (*isNull)(Vector self);
@@ -59,7 +60,9 @@ Vector toVector(double *, int m);
 Vector newRandomVector(int m);
 
 //Copies a vector over
-Vector __copyVector__(Vector);
+Vector __copyVector__(Vector self);
+//Method for freeing vectors
+void __freeVector__(Vector self);
 
 
 /******************************Getters******************************/
@@ -93,4 +96,4 @@ void __transposeVector__(Vector *);
 void __scaleVector__(Vector, double scale);
 void __normalizeVector__(Vector, int norm);
 double __pnorm__(Vector, int p);
-double dot_product(Vector, Vector);
+double dotProduct(Vector, Vector);

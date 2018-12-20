@@ -25,6 +25,9 @@ void scaleArray(double *a, int len, double scale) {
 		printf("Invalid array length.\n");	
 		return;
 	}
+	//Scaling by identity
+	if(scale == 1)
+		return;
 
 	for(int i = 0; i < len; i++)
 		*(a + i) *= scale;
@@ -52,6 +55,7 @@ Vector newVector(int m, bool colVec) {
 	Vector self = {m, calloc(m, sizeof(double)), colVec};
 	//Point methods to the function pointers
 	self.copy = __copyVector__;
+	self.free = __freeVector__;
 	//Getters
 	self.dim = __getVectorDimension__;
 	self.isNull = __isNullVector__;
@@ -110,6 +114,10 @@ Vector __copyVector__(Vector self) {
 	copy.setEntries(copy, self.getEntries(self));
 
 	return copy;
+}
+
+void __freeVector__(Vector self) {
+	free(self.__entries__);
 }
 
 
@@ -181,7 +189,7 @@ bool areOrthogonal(Vector v1, Vector v2) {
 		printf("Using null vectors.\n");
 		return false;
 	}
-	return dot_product(v1, v2) == 0;
+	return dotProduct(v1, v2) == 0;
 }
 
 /******************************Printers******************************/
@@ -259,7 +267,7 @@ void __normalizeVector__(Vector self, int norm) {
 	self.scale(self, 1/magnitude);
 }
 
-double dot_product(Vector v1, Vector v2) {
+double dotProduct(Vector v1, Vector v2) {
 	//Vectors must be of same dimension
 	//and they must be well defined vectors
 	if(v1.isNull(v1) || v2.isNull(v2))
@@ -270,10 +278,10 @@ double dot_product(Vector v1, Vector v2) {
 	 }
 
 	//Initializes the product
-	double dot_product = 0;
+	double dotProduct = 0;
 	//Loops through the vectors
 	for(int row = 1; row <= v1.dim(v1); row++)
-		dot_product += v1.getElem(v1, row) * v2.getElem(v2, row);
+		dotProduct += v1.getElem(v1, row) * v2.getElem(v2, row);
 
-	return dot_product;
+	return dotProduct;
 }
