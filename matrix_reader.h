@@ -9,7 +9,7 @@
 //Main source of entry into program, takes the file pointer
 //directing to file and begins initialization
 //Returns a non-zero value on failure
-int read_matrix_file(FILE* fp);
+int readMatrixFile(FILE* fp);
 
 bool areSameString(String, String);
 

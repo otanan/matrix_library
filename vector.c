@@ -33,6 +33,10 @@ void scaleArray(double *a, int len, double scale) {
 		*(a + i) *= scale;
 }
 
+//Temporary implementation, needs to be improved
+// + 1 to prevent flooring to 0
+int randomInt() { return (int)(randomDouble() + 1); }
+
 double randomDouble() {
 	const double UPPER_LIMIT = 5;
 	static bool seedSet = false;
@@ -60,6 +64,7 @@ Vector newVector(int m, bool colVec) {
 	self.dim = __getVectorDimension__;
 	self.isNull = __isNullVector__;
 	self.isColVec = __isColVec__;
+	self.isRowVec = __isRowVec__;
 	self.isOutOfBounds = __isVectorOutOfBounds__;
 	self.getElem = __getVectorElem__;
 	self.isEqualTo = __isVectorEqualTo__;
@@ -130,6 +135,8 @@ bool __isColVec__(Vector self) {
 
 	return self.__colVec__;
 }
+
+bool __isRowVec__(Vector self) { return !self.isColVec(self); }
 
 bool __isNullVector__(Vector self) {
 	if(self.dim(self) <= 0) {
@@ -206,6 +213,10 @@ void __printVector__(Vector self) {
 		//else, just separate entries by a space on the same line
 		printf("%6.3f,%s", self.getElem(self, index), (self.isColVec(self) ? "\n" : " "));
 	}
+	//Extra padding for row vectors
+	if(self.isRowVec(self))
+		printf("\n");
+
 	//Final line padding
 	printf("\n");
 }

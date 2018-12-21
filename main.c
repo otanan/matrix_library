@@ -64,17 +64,11 @@
 
 //One long array for matrices for optimization?
 
-void benchmark_test(void);
-void benchmark_test() {
-	benchmark_general(__matrix_test__);
-	benchmark_general_multi(__matrix_test__, 1000);
-}
-
-void matrix_reader_test(void);
-void matrix_reader_test() {
+void matrixReaderTest(void);
+void matrixReaderTest() {
 	//Read file belongs to file.h, implementation is currently not working properly
 	FILE *fp = fopen("input.txt", "r");
-	read_matrix_file(fp);
+	readMatrixFile(fp);
 
 
 
@@ -88,21 +82,9 @@ int main() {
 	//Some output padding
 	printf("\n\n\n");
 	extern const Vector NULL_VECTOR;
-	//benchmark_test(;
-	// matrix_reader_test();
+	benchmarkGeneralMulti(__matrixTest__, 10000);
+	// matrixReaderTest();
 	/*************/
-	double elements[] = {2, 0, 0, -3};
-	Vector vector = toVector(elements, 4);
-	vector.free(vector);
-
-	Matrix matrix = toMatrix(elements, 2, 2);
-	matrix.print(matrix);
-
-	matrix = matrix.pow(matrix, -2);
-	
-	matrix.print(matrix);
-
-	matrix.free(matrix);
 
 
 	/*************/

@@ -21,7 +21,8 @@ struct Vector {
 	//Getters
 	int (*dim)(Vector self); //Most fundamental getter function, isNullVec relies on this result
 	bool (*isNull)(Vector self);
-	bool (*isColVec) (Vector self);
+	bool (*isColVec)(Vector self);
+	bool (*isRowVec)(Vector self);
 	bool (*isOutOfBounds)(Vector self, int row);
 	double (*getElem)(Vector self, int entry);
 	bool (*isEqualTo)(Vector self, Vector other);
@@ -47,6 +48,7 @@ struct Vector {
 double *copyArray(double *, int len);
 //Essentially scaling a vector, but kept as array scale so it can be used by matrices
 void scaleArray(double *, int len, double scale);
+int randomInt(void);
 //Returns a random double using an adapted rand function from time.h
 //Is used for random functionality in creating a vector
 double randomDouble(void);
@@ -54,7 +56,9 @@ double randomDouble(void);
 
 /******************************Constructors******************************/
 Vector newVector(int m, bool colVec);
-//Converting constructors
+//Conversion constructor
+//Takes in an array of doubles that are the elements, and the length of the array
+//which also corresponds to the dimension of the vector created
 Vector toVector(double *, int m);
 //Will create a pseudo-random column vector
 Vector newRandomVector(int m);
@@ -68,6 +72,8 @@ void __freeVector__(Vector self);
 /******************************Getters******************************/
 bool __isNullVector__(Vector self);
 bool __isColVec__(Vector self);
+//Just returns the opposite of __isColVec__, but serves for readability in logic
+bool __isRowVec__(Vector self);
 bool __isVectorOutOfBounds__(Vector self, int row);
 int __getVectorDimension__(Vector self);
 //Handles accessing the pointer arrays, returns elements

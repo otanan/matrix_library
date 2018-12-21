@@ -29,6 +29,7 @@ struct Matrix {
 	//Setters
 	void (*setElem)(Matrix self, int row, int col, double val);
 	void (*setRow)(Matrix self, int row, double *);
+	void (*setCol)(Matrix self, int col, double *);
 	//Operations
 	void (*scale)(Matrix self, double scale);
 	void (*transpose)(Matrix *self);
@@ -36,6 +37,7 @@ struct Matrix {
 	//Elementary Operations
 	void (*swapRows)(Matrix self, int row1, int row2);
 	void (*scaleRow)(Matrix self, int row, double scale);
+	void (*scaleCol)(Matrix self, int col, double scale);
 	void (*addRows)(Matrix self, int row1, int row2);
 	void (*addScaledRows)(Matrix self, int row1, double scale1, int row2, double scale2);
 };
@@ -83,6 +85,7 @@ void __printMatrix__(Matrix self);
 /******************************Setters******************************/
 void __setMatrixElem__(Matrix self, int row, int col, double val);
 void __setRow__(Matrix, int row, double *);
+void __setCol__(Matrix, int col, double *);
 
 
 
@@ -93,13 +96,16 @@ Matrix __matrixPower__(Matrix self, int);
 //Vector multiplication is most general type to decide whether the operation is
 //either an inner product or outer product
 Matrix vectorMult(Vector, Vector);
-Matrix matrix_mult(Matrix, Matrix);
+Matrix matrixMult(Matrix, Matrix);
+//Helper function for matrixMult
+Matrix __outerProduct__(Matrix, Matrix);
 
 
 
 /******************************Elementary Operations******************************/
 void __swapRows__(Matrix self, int row1, int row2);
 void __scaleRow__(Matrix self, int row, double scale);
+void __scaleCol__(Matrix self, int col, double scale);
 //Will add row2 to row1 and store it in row1
 void __addRows__(Matrix self, int row1, int row2);
 //Will combine scaleRow, and addRows with options of rescaling each row
@@ -107,4 +113,4 @@ void __addScaledRows__(Matrix self, int row1, double scale1, int row2, double sc
 
 
 /******************************TESTING FUNCTIONALITY******************************/
-void __matrix_test__(void);
+void __matrixTest__(void);

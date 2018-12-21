@@ -37,6 +37,7 @@ Matrix newMatrix(int m, int n) {
 	//Setters
 	self.setElem = __setMatrixElem__;
 	self.setRow = __setRow__;
+	self.setCol = __setCol__;
 	//Operations
 	self.scale = __scaleMatrix__;
 	self.transpose = __transposeMatrix__;
@@ -44,6 +45,7 @@ Matrix newMatrix(int m, int n) {
 	//Elementary Operations
 	self.swapRows = __swapRows__;
 	self.scaleRow = __scaleRow__;
+	self.scaleCol = __scaleCol__;
 	self.addRows = __addRows__;
 	self.addScaledRows = __addScaledRows__;
 
@@ -264,11 +266,11 @@ void __printMatrix__(Matrix self) {
 	for(int row = 1; row <= self.m; row++) {
 		for(int col = 1; col <= self.n; col++) {
 			//Padding for right justification
-			printf("%5.3f ", self.getElem(self, row, col));
+			printf("%5.3f, ", self.getElem(self, row, col));
 		}
 		//Prints a row ending comma and then enters a new line for the next row
 		//backspace character is to delete last space from for loop
-		printf("\b,\n");
+		printf("\b\n");
 	}
 	//Final line padding
 	printf("\n");
@@ -293,6 +295,17 @@ void __setRow__(Matrix self, int row, double *a) {
 	//Copies the array passed in, to the row of the matrix
 	//Note that the length of the array passed in must match the amount of columns in the matrix
 	memcpy(*(self.__rows__ + (row - 1)), a, sizeof(double) * self.n);
+}
+
+void __setCol__(Matrix self, int col, double *a) {
+	if(self.isNull(self) || self.isOutOfBounds(self, 1, col)) {
+		printf("Attemping to set an invalid column.\n");
+		return;
+	}
+
+	//Based on how data is saved for the matrix, we must set the elements on by one
+	for(int row = 1; row <= self.m; row++)
+		self.setElem(self, row, col, a[row - 1]);
 }
 
 /******************************Operations******************************/
@@ -394,6 +407,12 @@ Matrix matrixMult(Matrix m1, Matrix m2) {
 	if(m1.n != m2.m || m1.isNull(m1) || m2.isNull(m2))
 		return NULL_MATRIX;
 
+	//The first matrix is a column vector, and the second matrix is a row vector
+	//performance can be optimized by using an outer product function that organizes
+	//the predictable result
+	if(m1.n == 1 && m2.m == 1)
+		return __outerProduct__(m1, m2);
+
 	//Prepares the dimensions of the product
 	//and initializes the matrix
 	Matrix product = newMatrix(m1.m, m2.n);
@@ -410,6 +429,40 @@ Matrix matrixMult(Matrix m1, Matrix m2) {
 	}
 
 	return product;
+}
+
+Matrix __outerProduct__(Matrix m1, Matrix m2) {
+	if(m1.n != 1 || m2.m != 1) {
+		printf("Attempting to do an outer product on incompatible matrices.\n");
+		return NULL_MATRIX;
+	}
+
+	printf("Using __outerProduct__ helper\n");
+
+	Matrix result = newMatrix(m1.m, m2.n);
+	//Operations for an outer product
+	if(m1.m > m2.n) {
+		//More rows than columns in final matrix,
+		//better to insert columns of m1, and scale by entries of m2
+		double *colToInsert = m1.getCol(m1, 1);		
+
+		for(int col = 1; col <= result.n; col++) {
+			result.setCol(result, col, colToInsert);
+			result.scaleCol(result, col, m2.getElem(m2, 1, col));
+		}
+
+		return result;
+	}
+	//More columns than rows in final matrix, or they're the same
+	//Best to insert rows of m2, and scale by entries of m1
+	double *rowToInsert = m2.getRow(m2, 1);
+
+	for(int row = 1; row <= result.m; row++) {
+		result.setRow(result, row, rowToInsert);
+		result.scaleRow(result, row, m1.getElem(m1, row, 1));
+	}
+
+	return result;
 }
 
 /******************************Elementary Operations******************************/
@@ -435,6 +488,20 @@ void __scaleRow__(Matrix self, int row, double scale) {
 	scaleArray(*(self.__rows__ + (row - 1)), self.n, scale);
 }
 
+void __scaleCol__(Matrix self, int col, double scale) {
+	if(self.isNull(self) || self.isOutOfBounds(self, 1, col))
+		return;
+	//Don't waste your time if the scale is identity
+	if(scale == 1)
+		return;
+
+	for(int row = 1; row <= self.m; row++) {
+		//Statement checks to see if the scale is 0, if it is, we don't need to know what element was there before
+		//we simply need to make the entry 0
+		self.setElem(self, row, col, scale == 0 ? 0 : (self.getElem(self, row, col) * scale) );
+	}
+}
+
 void __addRows__(Matrix self, int row1, int row2) {
 	if(self.isNull(self) || self.isOutOfBounds(self, row1, 1) || self.isOutOfBounds(self, row2, 1))
 		return;
@@ -457,10 +524,14 @@ void __addScaledRows__(Matrix self, int row1, double scale1, int row2, double sc
 	self.scaleRow(self, row2, 1/scale2);
 }
 
-void __matrix_test__() {
-	Matrix m1 = newRandomMatrix(4, 4);
-	Matrix m2 = newRandomMatrix(4, 4);
-	m1.isEqualTo(m1, m2);
-	//m1.print(m1);
-	//Matrix m2 = m1.copy(m1);
+void __matrixTest__() {
+	Vector v1 = newRandomVector(20);
+	Vector v2 = newRandomVector(10);
+	v2.transpose(&v2);
+
+	v1.print(v1);
+	v2.print(v2);
+
+	Matrix result = vectorMult(v1, v2);
+	result.print(result);
 }

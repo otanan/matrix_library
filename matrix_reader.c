@@ -9,7 +9,7 @@ static int matrixCount = 0;
 
 bool areSameString(String s1, String s2) { return !strcmp(s1, s2); }
 
-int read_matrix_file(FILE* fp) {
+int readMatrixFile(FILE* fp) {
     if(fp == NULL) {
         printf("File not found.\n");
         return -1;
@@ -98,7 +98,7 @@ void multiply(FILE* fp) {
 
     printf("Product %c%c: \n", label1[0], label2[0]);
 
-    Matrix product = matrix_mult(getMatrix(label1[0]), getMatrix(label2[0]));
+    Matrix product = matrixMult(getMatrix(label1[0]), getMatrix(label2[0]));
     product.print(product);
     
     //Adhoc file saving solution, saves matrix products to output.txt

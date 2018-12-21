@@ -4,7 +4,7 @@
 
 //Function that takes in another function from a library
 //and uses it to perform a shrewd benchmark
-double benchmark_general(void (*test)(void)) {
+double benchmarkGeneral(void (*test)(void)) {
 	//Converting factor to measure in milliseconds
 	const double SECS_TO_MILLI = 1000.0;
 	//Will measure time difference in milliseconds
@@ -27,14 +27,14 @@ double benchmark_general(void (*test)(void)) {
 	return timeElapsed;
 }
 
-void benchmark_general_multi(void (*test)(void), int runs) {
+void benchmarkGeneralMulti(void (*test)(void), int runs) {
 	//Array holding the time entries for each time elapsed
 	double *times = malloc(runs * sizeof(double));
 	//Total time for averaging
 	double totalTime = 0;
 
 	for(int i = 0; i < runs; i++) {
-		times[i] = benchmark_general(test);
+		times[i] = benchmarkGeneral(test);
 		totalTime += times[i];
 	}
 
