@@ -1,11 +1,11 @@
 #include "matrix_reader.h"
-//Macros used to define memory allocation used in program
-#define MAX_AMOUNT_MATRICES 50
+#include "dict.h"
 
-//A list of matrices used to get matrices
-static Matrix *matrices;
-//A variable to keep count of the amount of matrices saved
-static int matrixCount = 0;
+#ifndef MAX_LINE_LENGTH
+#define MAX_LINE_LENGTH 100
+#endif
+
+static Dict *matrixDict;
 
 bool areSameString(String s1, String s2) { return !strcmp(s1, s2); }
 
@@ -16,8 +16,7 @@ int readMatrixFile(FILE* fp) {
     }
 
     char line[MAX_LINE_LENGTH];
-
-    matrices = malloc(sizeof(Matrix) * MAX_AMOUNT_MATRICES);
+    matrixDict = newDict();
 
     while( next(fp, line) != 0 ) {
 
@@ -51,7 +50,7 @@ void readVector(FILE *fp) {
 
 void readMatrix(FILE *fp) {
     //Single character label (A, B, C etc.) to label the matrix
-    char label[2];
+    char label[MAX_LINE_LENGTH];
     next(fp, label);
     //Loads the dimensions of the matrix
     int m, n;
@@ -74,31 +73,30 @@ void readMatrix(FILE *fp) {
     printf("[%c]: ", label[0]);
     matrix.print(matrix);
 
-    //Ensures that if the label was a string, we only take the first letter
-    setMatrix(matrix, label[0]);
+   matrixDict->set(matrixDict, label, &matrix);
 }
 
 void checkMatrixEquality(FILE *fp) {
-    char label1[2];
-    char label2[2];
+    char label1[MAX_LINE_LENGTH];
+    char label2[MAX_LINE_LENGTH];
 
     next(fp, label1);
     next(fp, label2);
-
-    Matrix m1 = getMatrix(label1[0]);
-    printf("%c %s %c\n", label1[0], m1.isEqualTo(m1, getMatrix(label2[0])) ? "==" : "=/=", label2[0]);
+    //Temporary casting while matrix library does not use struct pointers
+    Matrix m1 = *(Matrix *)matrixDict->get(matrixDict, label1);
+    printf("%s %s %s\n", label1, m1.isEqualTo(m1, *(Matrix *)matrixDict->get(matrixDict, label2)) ? "==" : "=/=", label2);
 }
 
 void multiply(FILE* fp) {
-    char label1[2];
-    char label2[2];
+    char label1[MAX_LINE_LENGTH];
+    char label2[MAX_LINE_LENGTH];
 
     next(fp, label1);
     next(fp, label2);
 
-    printf("Product %c%c: \n", label1[0], label2[0]);
+    printf("Product %s%s: \n", label1, label2);
 
-    Matrix product = matrixMult(getMatrix(label1[0]), getMatrix(label2[0]));
+    Matrix product = matrixMult(*(Matrix *)matrixDict->get(matrixDict, label1), *(Matrix *)matrixDict->get(matrixDict, label2));
     product.print(product);
     
     //Adhoc file saving solution, saves matrix products to output.txt
@@ -109,13 +107,4 @@ void multiply(FILE* fp) {
     // if( (out = freopen("output.txt", "a", stdout) ) ) {
     //     product.print(product);
     // }
-}
-
-void setMatrix(Matrix matrix, char label) {
-    matrices[label - 'A'] = matrix;
-    matrixCount++;
-}
-
-Matrix getMatrix(char label) {
-    return matrices[label - 'A'];
 }

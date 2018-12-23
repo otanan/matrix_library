@@ -29,11 +29,6 @@
 
 //Consider privacy of field consisting of dimensions of the matrix
 
-//VECTOR MULTIPLICATION
-	//Note that this whole step could be optimized
-	//there is a predictable pattern to the outcome of an outer product
-	//rather than converting both to matrices and relying on matrix multiplication
-
 //Initialize NULL_VECTOR and NULL_MATRIX to point to an error handling method rather than doing error checking
 
 //Consider changing calloc/malloc to check whether we're creating a new object vs converting one
@@ -64,6 +59,10 @@
 
 //One long array for matrices for optimization?
 
+
+
+//COMPLETELY CHANGE TO STRUCT POINTERS INSTEAD OF STRUCTS
+
 void matrixReaderTest(void);
 void matrixReaderTest() {
 	//Read file belongs to file.h, implementation is currently not working properly
@@ -82,10 +81,9 @@ int main() {
 	//Some output padding
 	printf("\n\n\n");
 	extern const Vector NULL_VECTOR;
-	benchmarkGeneralMulti(__matrixTest__, 10000);
-	// matrixReaderTest();
+	// benchmarkGeneralMulti(__matrixTest__, 10000);
+	matrixReaderTest();
 	/*************/
-
 
 	/*************/
 	printf("\n");
