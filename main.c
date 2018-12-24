@@ -6,6 +6,7 @@
 
 #include "benchmark.h"
 #include "matrix_reader.h"
+#include "dict.h"
 
 //TODO
 //Overhead from recalling error checking several times in for loops
@@ -58,10 +59,21 @@
 	//Consider implementing a dictionary for the matrices
 
 //One long array for matrices for optimization?
+//Changing identities is an issue
+	//Consider resolving by making identity matrices constants, and returning
+	//a pointer? or something along those lines
 
+//Possible redundancy in memory?
+//Getting copies arrays, setting copies arrays
+
+//Consider optimizing matrixMult to not use dot product
 
 
 //COMPLETELY CHANGE TO STRUCT POINTERS INSTEAD OF STRUCTS
+
+//Change isEqualTo, to, areEqual
+//areMatricesOrthogonal
+//areVectorsOrthogonal
 
 void matrixReaderTest(void);
 void matrixReaderTest() {
@@ -75,15 +87,43 @@ void matrixReaderTest() {
 	fclose(fp);
 }
 
-
 //MAIN
 int main() {
 	//Some output padding
-	printf("\n\n\n");
-	extern const Vector NULL_VECTOR;
+	printf("\n\n");
 	// benchmarkGeneralMulti(__matrixTest__, 10000);
 	matrixReaderTest();
 	/*************/
+
+	// Matrix *holder;
+
+	// Dict *myDict = newDict();
+	// char *label = "test";
+	// Matrix *matrix = newRandomMatrix(2,2);
+	// myDict->set(myDict, label, matrix);
+	// matrix->print(matrix);
+	// char *label2 = "test2";
+	// matrix = newRandomMatrix(2,2);
+	// myDict->set(myDict, label2, matrix);
+	// char *label3 = "test3";
+	// matrix = newRandomMatrix(2,2);
+	// myDict->set(myDict, label3, matrix);
+	// char *label4 = "test4";
+	// matrix = newRandomMatrix(2,2);
+	// myDict->set(myDict, label4, matrix);
+	// char *label5 = "test5";
+	// matrix = newRandomMatrix(2,2);
+	// myDict->set(myDict, label5, matrix);
+	// char *label6 = "test6";
+	// matrix = newRandomMatrix(2,2);
+	// myDict->set(myDict, label6, matrix);
+
+
+	// holder = myDict->get(myDict, label);
+	// holder->print(holder);
+
+
+
 
 	/*************/
 	printf("\n");

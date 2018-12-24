@@ -1,43 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "dict.h"
-
-/******************************General Functionality******************************/
-// void __printDict__(Dict *self) {
-// 	if(self->isEmpty(self)) {
-// 		printf("Empty dictionary\n");
-// 		return;
-// 	}
-
-// 	printf("[");
-
-// 	for(int i = 0; i < self->length(self); i++) {
-// 		void *key = self->getKey(self, i);
-// 		//Temporary, already assuming that the keys are strings
-// 		//and the values are integers
-// 		printf("(%s, %d), ", key, *(int *)self->get(self, key));
-// 	}
-
-// 	printf("\b\b]\n");
-// }
-
-void __grow__(Dict *self) {
-	//Increases the capacity by 150%
-	self->__capacity__ *= 1.5;
-
-	int memNeeded = self->capacity(self) * sizeof(void *);
-
-	self->__keys__ = realloc(self->__keys__, memNeeded);
-	self->__values__ = realloc(self->__values__, memNeeded);
-}
-
-void __replace__(Dict *self, int index, void *value) { self->__values__[index] = value; }
 
 /******************************Constructors******************************/
 Dict *newDict() {
-	Dict *self = malloc(sizeof(Dict *));
-
-	self->__capacity__ = 5;
+	Dict *self = malloc(sizeof(Dict));
+	//Small capacity is for testing purposes
+	self->__capacity__ = 2;
 	self->__length__ = 0;
 
 	int memNeeded = self->__capacity__ * sizeof(void *);
@@ -47,7 +17,11 @@ Dict *newDict() {
 	self->__values__ = malloc(memNeeded);
 
 	//"METHODS"
-	// self->print = __printDict__;
+	//Interfacing
+	self->setKeyComparator = __setKeyComparator__;
+	self->__keyComparator__ = __keyComparator__;
+	//General Functionality
+	self->print = __printDict__;
 	//Getters
 	self->length = __getDictLength__;
 	self->capacity = __getDictCapacity__;
@@ -61,6 +35,42 @@ Dict *newDict() {
 
 	return self;
 }
+
+/******************************Interfacing******************************/
+void __setKeyComparator__(Dict *self, bool (*__keyComparator__)(Dict *self, void *key1, void *key2)) { self->__keyComparator__ = __keyComparator__; }
+bool __keyComparator__(Dict *self, void *key1, void *key2) { return key1 == key2; }
+
+
+/******************************General Functionality******************************/
+void __printDict__(Dict *self) {
+	if(self->isEmpty(self)) {
+		printf("Empty dictionary\n");
+		return;
+	}
+
+	printf("[");
+
+	for(int i = 0; i < self->length(self); i++) {
+		void *key = self->getKey(self, i);
+		//Temporary, already assuming that the keys are strings
+		//and the values are integers
+		printf("(%s, %d), ", key, *(int *)self->get(self, key));
+	}
+
+	printf("\b\b]\n");
+}
+
+void __grow__(Dict *self) {
+	//Increases the capacity by 150%
+	self->__capacity__ *= 1.5;
+
+	int memNeeded = self->capacity(self) * sizeof(void *);
+
+	self->__keys__ = realloc(self->__keys__, memNeeded);
+	self->__values__ = realloc(self->__values__, memNeeded);
+}
+
+void __replace__(Dict *self, int index, void *value) { self->__values__[index] = value; }
 
 /******************************Getters******************************/
 int __getDictCapacity__(Dict *self) { return self->__capacity__; }
@@ -81,7 +91,9 @@ int __contains__(Dict *self, void *key) {
 		return -1;
 
 	for(int i = 0; i < self->length(self); i++) {
-		if( self->__keys__[i] == key)
+		
+		//Uses the implemented keyComparator to check if the keys match
+		if(self->__keyComparator__(self, self->__keys__[i], key))
 			return i;
 	}
 
@@ -91,7 +103,7 @@ int __contains__(Dict *self, void *key) {
 void *__get__(Dict *self, void *key) {
 	int index = self->contains(self, key);
 
-	if(	index >= 0)
+	if(index >= 0)
 		return self->__values__[index];
 
 	return NULL;
@@ -101,8 +113,8 @@ void *__get__(Dict *self, void *key) {
 /******************************Setters******************************/
 void __set__(Dict *self, void *key, void *value) {
 	int index = self->contains(self, key);
-	
-	if( index >= 0) {
+
+	if(index >= 0) {
 		__replace__(self, index, value);
 		return;
 	}
@@ -110,9 +122,14 @@ void __set__(Dict *self, void *key, void *value) {
 	if(self->length(self) >= self->capacity(self))
 		__grow__(self);
 
-	self->__keys__[self->length(self)] = key;
+
+	self->__keys__[self->length(self)] = malloc(sizeof(key));
+	memcpy(self->__keys__[self->length(self)], key, sizeof(*key));
+
+	// self->__keys__[self->length(self)] = key;
 	self->__values__[self->length(self)] = value;	
 
 	//Increments the size of the dictionary
 	self->__length__++;
+
 }

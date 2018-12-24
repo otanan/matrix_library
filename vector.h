@@ -16,26 +16,24 @@ struct Vector {
 	bool __colVec__;
 
 	//"METHODS"
-	Vector (*copy)(Vector self);
-	void (*free)(Vector self);
+	Vector *(*copy)(Vector *self);
+	void (*free)(Vector *self);
 	//Getters
-	int (*dim)(Vector self); //Most fundamental getter function, isNullVec relies on this result
-	bool (*isNull)(Vector self);
-	bool (*isColVec)(Vector self);
-	bool (*isRowVec)(Vector self);
-	bool (*isOutOfBounds)(Vector self, int row);
-	double (*getElem)(Vector self, int entry);
-	bool (*isEqualTo)(Vector self, Vector other);
-	double *(*getEntries)(Vector self);
+	int (*dim)(Vector *self); //Most fundamental method
+	bool (*isColVec)(Vector *self);
+	bool (*isRowVec)(Vector *self);
+	double *(*getEntries)(Vector *self);
+	bool (*isOutOfBounds)(Vector *self, int row);
+	double (*getElem)(Vector *self, int entry);
 	//Printers
-	void (*print)(Vector self);
+	void (*print)(Vector *self);
 	//Setters
-	void (*setElem)(Vector self, int row, double value);
-	void (*setEntries)(Vector self, double *entries);
+	void (*setElem)(Vector *self, int row, double value);
+	void (*setEntries)(Vector *self, double *entries);
 	//Operations
-	void (*scale)(Vector self, double scale);
-	void (*normalize)(Vector self, int norm);
-	double (*pnorm)(Vector self, int p);
+	void (*scale)(Vector *self, double scale);
+	void (*normalize)(Vector *self, int norm);
+	double (*pnorm)(Vector *self, int p);
 	void (*transpose)(Vector *self);
 };
 
@@ -55,51 +53,50 @@ double randomDouble(void);
 
 
 /******************************Constructors******************************/
-Vector newVector(int m, bool colVec);
+Vector *newVector(int m, bool colVec);
 //Conversion constructor
 //Takes in an array of doubles that are the elements, and the length of the array
 //which also corresponds to the dimension of the vector created
-Vector toVector(double *, int m);
+Vector *toVector(double *, int m);
 //Will create a pseudo-random column vector
-Vector newRandomVector(int m);
+Vector *newRandomVector(int m);
 
 //Copies a vector over
-Vector __copyVector__(Vector self);
+Vector *__copyVector__(Vector *self);
 //Method for freeing vectors
-void __freeVector__(Vector self);
+void __freeVector__(Vector  *self);
 
 
 /******************************Getters******************************/
-bool __isNullVector__(Vector self);
-bool __isColVec__(Vector self);
+bool __isColVec__(Vector  *self);
 //Just returns the opposite of __isColVec__, but serves for readability in logic
-bool __isRowVec__(Vector self);
-bool __isVectorOutOfBounds__(Vector self, int row);
-int __getVectorDimension__(Vector self);
+bool __isRowVec__(Vector  *self);
+//Returns a copy of the entries of the vector
+double *__getEntries__(Vector  *self);
+bool __isVectorOutOfBounds__(Vector  *self, int row);
+int __getVectorDimension__(Vector  *self);
 //Handles accessing the pointer arrays, returns elements
-double __getVectorElem__(Vector, int entry);
+double __getVectorElem__(Vector *, int entry);
 //Returns whether both vectors are equal to each other
-bool __isVectorEqualTo__(Vector, Vector);
-double *__getEntries__(Vector self);
-bool areOrthogonal(Vector, Vector);
+bool areVectorsEqual(Vector *, Vector *);
+bool areVectorsOrthogonal(Vector *, Vector *);
 
 
 /******************************Printers******************************/
-void __printVector__(Vector);
-
+void __printVector__(Vector *self);
 
 
 /******************************Setters******************************/
-void __setVectorElem__(Vector, int row, double value);
+void __setVectorElem__(Vector *self, int row, double value);
 //Takes in an array and overwrites the entries to that of the array
 //note that the array length is implied by the vector dimension
 //serves mostly as a helper function for toVector
-void __setEntries__(Vector self, double *entries);
+void __setEntries__(Vector *self, double *entries);
 
 
 /******************************Operations******************************/
 void __transposeVector__(Vector *);
-void __scaleVector__(Vector, double scale);
-void __normalizeVector__(Vector, int norm);
-double __pnorm__(Vector, int p);
-double dotProduct(Vector, Vector);
+void __scaleVector__(Vector *, double scale);
+void __normalizeVector__(Vector *, int norm);
+double __pnorm__(Vector *, int p);
+double dotProduct(Vector *, Vector *);

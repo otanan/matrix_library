@@ -19,3 +19,4 @@ bool isNextDouble(FILE *);
 //and returns a success value
 int nextInt(FILE *, int *);
 int nextDouble(FILE *, double *);
+int nextDoubles(FILE *, int times, double *);

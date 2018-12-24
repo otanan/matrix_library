@@ -10,7 +10,11 @@ struct Dict {
 	void **__keys__;
 	void **__values__;
 	//"METHODS"
-	// void (*print)(Dict *self);
+	//Interfacing
+	void (*setKeyComparator)(Dict *self, bool (*__keyComparator__)(Dict *self, void *key1, void *key2));
+	bool (*__keyComparator__)(Dict *self, void *key1, void *key2);
+	//General Functionality
+	void (*print)(Dict *self);
 	//Getters
 	int (*capacity)(Dict *self);
 	int (*length)(Dict *self);
@@ -25,8 +29,16 @@ struct Dict {
 
 /******************************PROTOTYPES******************************/
 
+/******************************Interfacing******************************/
+//Sets the __keyComparator__ in the dictionary, in case a custom one is written
+//Analogous to interfaces in Java
+void __setKeyComparator__(Dict *self, bool (*__keyComparator)(Dict *self, void *key1, void *key2));
+//Default implemented keyComparator, used to check if a key is in the dictionary
+bool __keyComparator__(Dict *self, void *key1, void *key2);
+
+
 /******************************General Functionality******************************/
-// void __printDict__(Dict *self);
+void __printDict__(Dict *self);
 //Hidden helper function used to increase the size of dictionaries
 //once they've reached their limit
 void __grow__(Dict *self);
@@ -44,6 +56,7 @@ bool __isFullDict__(Dict *self);
 //Returns the index (a nonnegative number) of the entry with the same key
 //otherwise, returns a negative value if the key is not currently in the dictionary
 int __contains__(Dict *self, void *key);
+//Returns a NULL pointer on failure to find the value with corresponding key
 void *__get__(Dict *self, void *key);
 void *__getKey__(Dict *self, int index);
 

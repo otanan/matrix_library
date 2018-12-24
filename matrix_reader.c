@@ -1,5 +1,4 @@
 #include "matrix_reader.h"
-#include "dict.h"
 
 #ifndef MAX_LINE_LENGTH
 #define MAX_LINE_LENGTH 100
@@ -7,6 +6,8 @@
 
 static Dict *matrixDict;
 
+/******************************Implementations******************************/
+bool keyComparator(Dict *self, void *key1, void *key2) { return areSameString(key1, key2); }
 bool areSameString(String s1, String s2) { return !strcmp(s1, s2); }
 
 int readMatrixFile(FILE* fp) {
@@ -16,7 +17,9 @@ int readMatrixFile(FILE* fp) {
     }
 
     char line[MAX_LINE_LENGTH];
+
     matrixDict = newDict();
+    matrixDict->setKeyComparator(matrixDict, keyComparator);
 
     while( next(fp, line) != 0 ) {
 
@@ -28,28 +31,29 @@ int readMatrixFile(FILE* fp) {
 
             multiply(fp);
 
-        } else if(areSameString("vector", line)) {
-
-            readVector(fp);
-
         } else if(areSameString("matrixEqual", line)) {
 
             checkMatrixEquality(fp);
 
+        } else if(areSameString("", line)) {
+
+            printf("New command here\n");
+
+        }
+        else {
+            //Serves as a default case, to print out unrecognized commands
+            printf("Unrecognized command: %s\n", line);
         }
 
    }
+
+    printf("\nCompleted file reading.\n");
     fclose(fp);
     //Program success
     return 0;
 }
 
-void readVector(FILE *fp) {
-    printf("YAY\n");
-}
-
 void readMatrix(FILE *fp) {
-    //Single character label (A, B, C etc.) to label the matrix
     char label[MAX_LINE_LENGTH];
     next(fp, label);
     //Loads the dimensions of the matrix
@@ -57,23 +61,22 @@ void readMatrix(FILE *fp) {
     nextInt(fp, &m);
     nextInt(fp, &n);
 
-    Matrix matrix = newMatrix(m, n);
-
-    double *elements = malloc(n * sizeof(double));
-
-    for(int row = 1; row <= m; row++) {
-
-        for(int col = 1; col <= n; col++) 
-            nextDouble(fp, elements + (col - 1));
-        
-        matrix.setRow(matrix, row, elements);
+    double *elements = malloc(m * n * sizeof(double));
+    //Reads the next m * n doubles and stores them in the array, elements
+    //to be used in conversion to a matrix using matrix helper constructors
+    if(!nextDoubles(fp, m * n, elements)) {
+        printf("Failure to read %dx%d doubles.\n", m, n);
+        exit(-1);
     }
 
-    //Prints the label of the matrix next to the matrix for better identification
-    printf("[%c]: ", label[0]);
-    matrix.print(matrix);
+    Matrix *matrix = toMatrix(m, n, elements);
+    free(elements);
 
-   matrixDict->set(matrixDict, label, &matrix);
+    //Prints the label of the matrix next to the matrix for better identification
+    printf("[%s]: ", label);
+    matrix->print(matrix);
+
+    matrixDict->set(matrixDict, label, matrix);
 }
 
 void checkMatrixEquality(FILE *fp) {
@@ -82,9 +85,14 @@ void checkMatrixEquality(FILE *fp) {
 
     next(fp, label1);
     next(fp, label2);
-    //Temporary casting while matrix library does not use struct pointers
-    Matrix m1 = *(Matrix *)matrixDict->get(matrixDict, label1);
-    printf("%s %s %s\n", label1, m1.isEqualTo(m1, *(Matrix *)matrixDict->get(matrixDict, label2)) ? "==" : "=/=", label2);
+   
+    Matrix *m1 = matrixDict->get(matrixDict, label1);
+    printf(
+        "%s %s %s\n",
+        label1,
+        areMatricesEqual(m1, matrixDict->get(matrixDict, label2)) ? "==" : "=/=",
+        label2
+    );
 }
 
 void multiply(FILE* fp) {
@@ -96,8 +104,20 @@ void multiply(FILE* fp) {
 
     printf("Product %s%s: \n", label1, label2);
 
-    Matrix product = matrixMult(*(Matrix *)matrixDict->get(matrixDict, label1), *(Matrix *)matrixDict->get(matrixDict, label2));
-    product.print(product);
+    Matrix *m1 = matrixDict->get(matrixDict, label1);
+    Matrix *m2 = matrixDict->get(matrixDict, label2);
+
+    if(m1 == NULL) {
+        printf("m1 is null\n");
+        return;
+    } else if(m2 == NULL) {
+        printf("m2 is null\n");
+        return;
+    }
+    
+    Matrix *product = matrixMult(m1, m2);
+
+    product->print(product);
     
     //Adhoc file saving solution, saves matrix products to output.txt
     //Note that it is missing a LOT of things, such as switching back to stdout stream

@@ -33,6 +33,17 @@ int nextDouble(FILE *fp, double *dp) {
     return 1;
 }
 
+int nextDoubles(FILE *fp, int times, double *dp) {
+    for(int i = 0; i < times; i++) {
+        //If a single reading of nextDouble fails, the function fails as a whole
+        if(!nextDouble(fp, (dp + i))) 
+            return 0;
+    }
+    //Success
+    return 1;
+}
+
+
 bool isNextInt(FILE *fp) {
     char line[MAX_LINE_LENGTH];
     int len;
@@ -126,11 +137,16 @@ int next(FILE *fp, String line) {
     int index = 0;
 
     //Ends at end of file, space, and newline to separate strings
-    while( (current = getc(fp)) != EOF && !isspace(current))
+    while((current = getc(fp)) != EOF && !isspace(current))
         line[index++] = current;
 
+    //If we're at the end of the file, the 0 flag marks for that
     if(current == EOF)
         return 0;
+    //If the index was never incremented, but it's also not the end of the line
+    //we must've read whitespace, call ourselves back to read again
+    else if(index == 0)
+        return next(fp, line);
 
     //Ends the string
     line[index++] = '\0';
