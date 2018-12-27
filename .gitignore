@@ -1,5 +1,5 @@
-#Ignore build folder
-build
+#Ignore any pre-compiled files in build folder
+build/*
 
 #Ignore any executables
 bin
