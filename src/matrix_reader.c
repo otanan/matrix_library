@@ -1,27 +1,64 @@
+/******************************Include******************************/
 #include "../include/matrix_reader.h"
-
+#include "../include/dict.h"
+#include "../include/matrix.h"
+/******************************Define******************************/
 #ifndef MAX_LINE_LENGTH
 #define MAX_LINE_LENGTH 100
 #endif
+/******************************Fields******************************/
+static Dict *matrix_dict;
 
-static Dict *matrixDict;
+//Adapt save_matrix_to_file for better flexibility (take in a file pointer, label, and matrix)
+
+
+/***********************PROTOTYPES***********************/
+/******************************Implementations******************************/
+//Notice void pointers, these current implementations may not be ideal
+//but they conform to the requirements of the dictionary
+//and implement any necessary casting inside
+static bool key_comparator(void *key1, void *key2);
+
+static void key_to_string(void *key, char *line);
+//Casts the void pointer to a Matrix pointer and points to the
+//to_string method of the matrix
+static void value_to_string(void *value, char *line);
+/******************************Reading******************************/
+static void read_matrix(FILE *fp);
+
+/******************************Writing******************************/
+//Takes in the label of the matrix so it can be found in the matrix dictionary
+//and stored in a way that is readable by this program
+static void save_matrix_to_file(char *label);
+
+/******************************Operations******************************/
+static void multiply_matrices(FILE *fp);
+//Prints whether two matrices are equal
+static void check_matrix_equality(FILE *fp);
+static void read_for_determinant(FILE *fp);
+static void read_for_transpose(FILE *fp);
+static void read_for_symmetric(FILE *fp);
+/***********************END PROTOTYPES***********************/
+
+
+
 
 /******************************Implementations******************************/
-bool keyComparator(void *key1, void *key2) { return areSameString((String)key1, (String)key2); }
-void keyToString(void *key, char *line) {
+static bool key_comparator(void *key1, void *key2) { return are_same_string((char *)key1, (char *)key2); }
+static void key_to_string(void *key, char *line) {
     //Since we expect our keys to be strings, we can simply cast the key to a string
     //and copy if over to the line
     //+ 1 to account for null character
-    int len = strlen((String) key) + 1;
+    int len = strlen((char *) key) + 1;
     memcpy(line, key, len);
 }
-void valueToString(void *value, char *line) { ((Matrix *)value)->toString(value, line); }
+static void value_to_string(void *value, char *string) { ((Matrix *)value)->to_string(value, string); }
 
 /******************************Getters******************************/
-bool areSameString(String s1, String s2) { return !strcmp(s1, s2); }
+bool are_same_string(char *s1, char *s2) { return !strcmp(s1, s2); }
 
 /******************************Reading******************************/
-int readMatrixFile(FILE* fp) {
+int read_matrix_file(FILE* fp) {
     if(fp == NULL) {
         printf("File not found.\n");
         return -1;
@@ -29,36 +66,36 @@ int readMatrixFile(FILE* fp) {
 
     char line[MAX_LINE_LENGTH];
 
-    matrixDict = newDict();
-    matrixDict->setKeyComparator(matrixDict, keyComparator);
-    matrixDict->setKeyToString(matrixDict, keyToString);
-    matrixDict->setValueToString(matrixDict, valueToString);
+    matrix_dict = newDict();
+    matrix_dict->set_key_comparator(matrix_dict, key_comparator);
+    matrix_dict->set_key_to_string(matrix_dict, key_to_string);
+    matrix_dict->set_value_to_string(matrix_dict, value_to_string);
 
     while( next(fp, line) != 0 ) {
 
-        if(areSameString("matrix", line)) {
+        if(are_same_string("matrix", line)) {
 
-            readMatrix(fp);
+            read_matrix(fp);
 
-        } else if(areSameString("multiply", line)) {
+        } else if(are_same_string("multiply", line)) {
 
-            multiplyMatrices(fp);
+            multiply_matrices(fp);
 
-        } else if(areSameString("matrixEqual", line)) {
+        } else if(are_same_string("matrixEqual", line)) {
 
-            checkMatrixEquality(fp);
+            check_matrix_equality(fp);
 
-        } else if(areSameString("det", line)) {
+        } else if(are_same_string("det", line)) {
 
-            readForDeterminant(fp);
+            read_for_determinant(fp);
 
-        } else if(areSameString("transpose", line)) {
+        } else if(are_same_string("transpose", line)) {
 
-            readForTranspose(fp);
+            read_for_transpose(fp);
 
-        } else if(areSameString("symmetric", line)) {
+        } else if(are_same_string("symmetric", line)) {
 
-            readForSymmetric(fp);
+            read_for_symmetric(fp);
 
         } else {
             //Serves as a default case, to print out unrecognized commands
@@ -70,24 +107,24 @@ int readMatrixFile(FILE* fp) {
     printf("\nCompleted file reading.\n");
 
     printf("\nFinal dictionary:\n");
-    matrixDict->print(matrixDict);
+    matrix_dict->print(matrix_dict);
     fclose(fp);
     //Program success
     return 0;
 }
 
-void readMatrix(FILE *fp) {
+static void read_matrix(FILE *fp) {
     char label[MAX_LINE_LENGTH];
     next(fp, label);
     //Loads the dimensions of the matrix
     int m, n;
-    nextInt(fp, &m);
-    nextInt(fp, &n);
+    next_int(fp, &m);
+    next_int(fp, &n);
 
     double *elements = malloc(m * n * sizeof(double));
     //Reads the next m * n doubles and stores them in the array, elements
     //to be used in conversion to a matrix using matrix helper constructors
-    if(!nextDoubles(fp, m * n, elements)) {
+    if(!next_doubles(fp, m * n, elements)) {
         printf("Failure to read %dx%d doubles.\n", m, n);
         exit(-1);
     }
@@ -99,15 +136,15 @@ void readMatrix(FILE *fp) {
     printf("[%s]: ", label);
     matrix->print(matrix);
 
-    matrixDict->set(matrixDict, label, matrix);
+    matrix_dict->set(matrix_dict, label, matrix);
 }
 
 
 /******************************Writing******************************/
-void saveMatrixToFile(char *label) {
+static void save_matrix_to_file(char *label) {
     FILE *fp = fopen("res/output.txt", "a");
 
-    Matrix *matrix = matrixDict->get(matrixDict, label);
+    Matrix *matrix = matrix_dict->get(matrix_dict, label);
 
     if(matrix == NULL) {
         printf("Unable to retrieve recently saved matrix product.\n");
@@ -121,7 +158,7 @@ void saveMatrixToFile(char *label) {
     for(int row = 1; row <= matrix->m(matrix); row++) {
 
         for(int col = 1; col <= matrix->n(matrix); col++)
-            fprintf(fp, "%f ", matrix->getElem(matrix, row, col));
+            fprintf(fp, "%f ", matrix->get_elem(matrix, row, col));
         
         //Breaks to a new line
         fprintf(fp, "\n");
@@ -132,7 +169,7 @@ void saveMatrixToFile(char *label) {
 
 
 /******************************Operations******************************/
-void multiplyMatrices(FILE* fp) {
+static void multiply_matrices(FILE* fp) {
     char label1[MAX_LINE_LENGTH];
     char label2[MAX_LINE_LENGTH];
 
@@ -142,29 +179,29 @@ void multiplyMatrices(FILE* fp) {
         exit(-1);
     }
 
-    Matrix *m1 = matrixDict->get(matrixDict, label1);
-    Matrix *m2 = matrixDict->get(matrixDict, label2);
+    Matrix *m1 = matrix_dict->get(matrix_dict, label1);
+    Matrix *m2 = matrix_dict->get(matrix_dict, label2);
 
     if(m1 == NULL || m2 == NULL) {
         printf("Failed to get one of the matrices for multiplication from the dictionary.\n");
         exit(-1);
     }
     
-    Matrix *product = matrixMult(m1, m2);
+    Matrix *product = matrix_mult(m1, m2);
     //Makes a new label for the resulting matrix product by concatenating the labels
     //of the first and second matrix
-    char productLabel[strlen(label1) + strlen(label2)];
-    sprintf(productLabel, "%s%s", label1, label2);
+    char product_label[strlen(label1) + strlen(label2)];
+    sprintf(product_label, "%s%s", label1, label2);
 
-    printf("Product:\n[%s]: ", productLabel);
+    printf("Product:\n[%s]: ", product_label);
     product->print(product);
     //Stores the product in the dictionary with the new label as a keys
-    matrixDict->set(matrixDict, productLabel, product);
+    matrix_dict->set(matrix_dict, product_label, product);
     //Saves the product to a file that is readable by this program
-    saveMatrixToFile(productLabel);
+    save_matrix_to_file(product_label);
 }
 
-void checkMatrixEquality(FILE *fp) {
+static void check_matrix_equality(FILE *fp) {
     char label1[MAX_LINE_LENGTH];
     char label2[MAX_LINE_LENGTH];
 
@@ -174,18 +211,18 @@ void checkMatrixEquality(FILE *fp) {
         exit(-1);
     }
    
-    Matrix *m1 = matrixDict->get(matrixDict, label1);
-    Matrix *m2 = matrixDict->get(matrixDict, label2);
+    Matrix *m1 = matrix_dict->get(matrix_dict, label1);
+    Matrix *m2 = matrix_dict->get(matrix_dict, label2);
 
     if(m1 == NULL || m2 == NULL) {
         printf("Failed to get one of the matrices for multiplication from the dictionary.\n");
         exit(-1);
     }
 
-    printf("%s %s %s\n", label1, areMatricesEqual(m1, m2) ? "==" : "=/=", label2);
+    printf("%s %s %s\n", label1, are_matrices_equal(m1, m2) ? "==" : "=/=", label2);
 }
 
-void readForDeterminant(FILE *fp) {
+static void read_for_determinant(FILE *fp) {
     char label[MAX_LINE_LENGTH];
 
     if(!next(fp, label)) {
@@ -194,7 +231,7 @@ void readForDeterminant(FILE *fp) {
         exit(-1);
     }
 
-    Matrix *matrix = matrixDict->get(matrixDict, label);
+    Matrix *matrix = matrix_dict->get(matrix_dict, label);
 
     if(matrix == NULL) {
         printf("Unable to retrieve matrix of label: %s\n", label);
@@ -204,7 +241,7 @@ void readForDeterminant(FILE *fp) {
     printf("Determinant of [%s]: %f\n", label, matrix->determinant(matrix));
 }
 
-void readForTranspose(FILE *fp) {
+static void read_for_transpose(FILE *fp) {
     char label[MAX_LINE_LENGTH];
 
     if(!next(fp, label)) {
@@ -213,7 +250,7 @@ void readForTranspose(FILE *fp) {
         exit(-1);
     }
 
-    Matrix *matrix = matrixDict->get(matrixDict, label);
+    Matrix *matrix = matrix_dict->get(matrix_dict, label);
 
     if(matrix == NULL) {
         printf("Unable to retrieve matrix of label: %s\n, from dictionary.\n", label);
@@ -224,15 +261,15 @@ void readForTranspose(FILE *fp) {
     mt->transpose(mt);
 
     strcat(label, "^T");
-    matrixDict->set(matrixDict, label, mt);
+    matrix_dict->set(matrix_dict, label, mt);
 
     printf("[%s]: ", label);
     mt->print(mt);
 
-    saveMatrixToFile(label);
+    save_matrix_to_file(label);
 }
 
-void readForSymmetric(FILE *fp) {
+static void read_for_symmetric(FILE *fp) {
     char label[MAX_LINE_LENGTH];
 
     if(!next(fp, label)) {
@@ -241,12 +278,12 @@ void readForSymmetric(FILE *fp) {
         exit(-1);
     }
 
-    Matrix *matrix = matrixDict->get(matrixDict, label);
+    Matrix *matrix = matrix_dict->get(matrix_dict, label);
 
     if(matrix == NULL) {
         printf("Unable to retrieve matrix of label: %s\n, from dictionary.\n", label);
         exit(-1);
     }
 
-    printf("%s is %s symmetric.\n", label, matrix->isSymmetric(matrix) ? "\b" : "not");   
+    printf("%s is %s symmetric.\n", label, matrix->is_symmetric(matrix) ? "\b" : "not");   
 }

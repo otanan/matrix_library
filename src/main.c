@@ -15,7 +15,7 @@
 //TODO
 //Considered implementing cutoff time for benchmarks
 
-//Potential __init__ function in constructor solely for pointing to methods?
+//Potential init function in constructor solely for pointing to methods?
 	//use case example is in alternative constructors, or finding way to all link to the same base constructor
 
 //Improve efficiency of toMatrix and toVector since they currently use the default constructor
@@ -24,7 +24,7 @@
 
 //Improve equality command syntax (rewriting commands)
 	//Dictionary connecting labels to types labelDict(label, "matrix")
-	//matrixDict
+	//matrix_dict
 	//vectorDict
 
 //Changing identities is an issue
@@ -43,18 +43,21 @@
 	//my_function()
 	//var my_var
 	//Benchmark, units in name
+//Refactor 
 
 //Matrix Reader
 	//Organize functions in sections and names
-	//Wrapper function for checking success of next and matrixDict, returns label and matrix
+	//Wrapper function for checking success of next and matrix_dict, returns label and matrix
 
 //Cut rows, cut cols helper functions
+
+//Test transpose matrix function after changing free()
 
 void matrix_reader_test(void);
 void matrix_reader_test() {
 	//Read file belongs to file.h, implementation is currently not working properly
 	FILE *fp = fopen("res/input.txt", "r");
-	readMatrixFile(fp);
+	read_matrix_file(fp);
 
 
 	fclose(fp);
@@ -64,7 +67,7 @@ void matrix_reader_test() {
 int main() {
 	//Some output padding
 	printf("\n\n");
-	// benchmarkGeneralMulti(__matrixTest__, 100);
+	// benchmark_general_multi(matrix_test, 100);
 	matrix_reader_test();
 	/*************/
 
