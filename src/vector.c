@@ -21,17 +21,17 @@ static bool is_col_vec(Vector *self);
 static bool is_row_vec(Vector *self);
 //Returns a copy of the entries of the vector
 static double *get_entries(Vector *self);
-static int get_vector_dimension(Vector *self);
-static bool is_vector_out_of_bounds(Vector *self, int row);
+static int get_dimension(Vector *self);
+static bool is_out_of_bounds(Vector *self, int row);
 //Handles accessing the pointer arrays, returns elements
-static double get_vector_elem(Vector *self, int entry);
+static double get_elem(Vector *self, int entry);
 
 /******************************Printers******************************/
 static void print_vector(Vector *self);
 
 
 /******************************Setters******************************/
-static void set_vector_elem(Vector *self, int row, double value);
+static void set_elem(Vector *self, int row, double value);
 //Takes in an array and overwrites the entries to that of the array
 //note that the array length is implied by the vector dimension
 //serves mostly as a helper function for toVector
@@ -39,9 +39,9 @@ static void set_entries(Vector *self, double *entries);
 
 
 /******************************Operations******************************/
-static void transpose_vector(Vector *);
+static void transpose(Vector *);
 static void scale_vector(Vector *, double scale);
-static void normalize_vector(Vector *, int norm);
+static void normalize(Vector *, int norm);
 static double p_norm(Vector *, int p);
 
 /******************************END PROTOTYPES******************************/
@@ -109,22 +109,22 @@ Vector *newVector(int m, bool col_vec) {
 	self->copy 				= copyVector;
 	self->free 				= free_vector;
 	//Getters
-	self->dim 				= get_vector_dimension;
+	self->dim 				= get_dimension;
 	self->is_col_vec 		= is_col_vec;
 	self->is_row_vec 		= is_row_vec;
 	self->get_entries 		= get_entries;
-	self->is_out_of_bounds 	= is_vector_out_of_bounds;
-	self->get_elem 			= get_vector_elem;
+	self->is_out_of_bounds 	= is_out_of_bounds;
+	self->get_elem 			= get_elem;
 	//Printers
 	self->print 			= print_vector;
 	//Setters
-	self->set_elem 			= set_vector_elem;
+	self->set_elem 			= set_elem;
 	self->set_entries 		= set_entries;
 	//Operations
 	self->scale 			= scale_vector;
-	self->normalize 		= normalize_vector;
+	self->normalize 		= normalize;
 	self->p_norm 			= p_norm;
-	self->transpose 		= transpose_vector;
+	self->transpose 		= transpose;
 	
 	return self;
 }
@@ -170,9 +170,9 @@ static void free_vector(Vector *self) { free(self->__entries__); }
 static bool is_col_vec(Vector *self) { return self->__col_vec__; }
 static bool is_row_vec(Vector *self) { return !self->is_col_vec(self); }
 static double *get_entries(Vector *self) { return copy_array_of_doubles(self->__entries__, self->dim(self)); }
-static int get_vector_dimension(Vector *self) { return self->__m__; }
+static int get_dimension(Vector *self) { return self->__m__; }
 
-static bool is_vector_out_of_bounds(Vector *self, int row) {
+static bool is_out_of_bounds(Vector *self, int row) {
 	if(row <= 0 || row > self->dim(self)) {
 		printf("Vector out of bounds.\n");
 		return true;
@@ -181,7 +181,7 @@ static bool is_vector_out_of_bounds(Vector *self, int row) {
 	return false;
 }
 
-static double get_vector_elem(Vector *self, int index) {
+static double get_elem(Vector *self, int index) {
 	//Note that either of these messages being true will print an error message
 	if(self->is_out_of_bounds(self, index)) {
 		printf("Accessing invalid vector entry. Returning 0.\n");
@@ -231,7 +231,7 @@ static void print_vector(Vector *self) {
 }
 
 /******************************Setters******************************/
-static void set_vector_elem(Vector *self, int index, double value) {
+static void set_elem(Vector *self, int index, double value) {
 	if(self->is_out_of_bounds(self, index)) {
 		printf("Attempting to set an invalid entry in vector.\n");
 		return;
@@ -248,7 +248,7 @@ static void set_entries(Vector *self, double *entries) {
 /******************************Operations******************************/
 //Transposes the vector negating whether it was a column vector or not
 //all other functions check that value to adapt to how to treat the vector
-static void transpose_vector(Vector *self) { self->__col_vec__ = !self->is_col_vec(self); }
+static void transpose(Vector *self) { self->__col_vec__ = !self->is_col_vec(self); }
 static void scale_vector(Vector *self, double scale) { scale_array(self->__entries__, self->dim(self), scale); }
 
 static double p_norm(Vector *self, int p) {
@@ -268,7 +268,7 @@ static double p_norm(Vector *self, int p) {
 //Rescales the vector by 1/p_norm, where the p_norm is the magnitude of the
 //vector defined by the norm passed in
 //i.e. the Euclidean magnitude of the vector is found by implementing the 2-norm
-static void normalize_vector(Vector *self, int norm) { self->scale(self, 1/self->p_norm(self, norm)); }
+static void normalize(Vector *self, int norm) { self->scale(self, 1/self->p_norm(self, norm)); }
 
 double dot_product(Vector *v1, Vector *v2) {
 	//Vectors must be of same dimension

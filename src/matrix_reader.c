@@ -1,4 +1,9 @@
 /******************************Include******************************/
+//for strlen
+#include <string.h>
+//for malloc
+#include <stdlib.h>
+
 #include "../include/matrix_reader.h"
 #include "../include/dict.h"
 #include "../include/matrix.h"

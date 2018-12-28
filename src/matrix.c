@@ -16,11 +16,11 @@
 /******************************Constructors******************************/
 static void free_matrix(Matrix *self);
 /******************************Getters******************************/
-static int get_M_dimension(Matrix *self);
-static  int get_N_dimension(Matrix *self);
-static bool is_matrix_out_of_bounds(Matrix *self, int row, int col);
+static int get_M(Matrix *self);
+static  int get_N(Matrix *self);
+static bool is_out_of_bounds(Matrix *self, int row, int col);
 //Handles accessing the pointer arrays, returns elements
-static double get_matrix_elem(Matrix *self, int row, int col);
+static double get_elem(Matrix *self, int row, int col);
 //These functions will get the row and columns of a matrix as arrays
 //that way they can be operated on more generally instead of being directly converted
 //to vectors
@@ -32,14 +32,14 @@ static Vector *get_col_vector(Matrix *self, int col);
 static Vector *get_row_vector(Matrix *self, int row);
 static bool is_diagonal(Matrix *self);
 static bool is_symmetric(Matrix *self);
-static bool is_matrix_orthogonal(Matrix *self);
+static bool is_orthogonal(Matrix *self);
 /******************************Printers******************************/
 static void print_matrix(Matrix *self);
-static void matrix_to_string(Matrix *self, char *string);
+static void to_string(Matrix *self, char *string);
 
 
 /******************************Setters******************************/
-static void set_matrix_elem(Matrix *self, int row, int col, double val);
+static void set_elem(Matrix *self, int row, int col, double val);
 //Copies the entries of the array passed in, and saves them as elements
 //of the row (col) of the matrix, does not change pointers in case array passed
 //is to be modified
@@ -51,7 +51,7 @@ static void set_col(Matrix *self, int col, double *);
 /******************************Operations******************************/
 static void scale_matrix(Matrix *self, double scale);
 //Transposes the matrix in place
-static void transpose_matrix(Matrix *self);
+static void transpose(Matrix *self);
 static Matrix *matrix_power(Matrix *self, int);
 //Helper function for matrix_mult
 static Matrix *outer_product(Matrix *, Matrix *);
@@ -94,27 +94,27 @@ Matrix *newMatrix(int m, int n) {
     self->copy              = copyMatrix;
     self->free              = free_matrix;
     //Getters
-    self->m                 = get_M_dimension;
-    self->n                 = get_N_dimension;
-    self->is_out_of_bounds  = is_matrix_out_of_bounds;
-    self->get_elem          = get_matrix_elem;
+    self->m                 = get_M;
+    self->n                 = get_N;
+    self->is_out_of_bounds  = is_out_of_bounds;
+    self->get_elem          = get_elem;
     self->get_row           = get_row;
     self->get_col           = get_col;
     self->get_col_vector    = get_col_vector;
     self->get_row_vector    = get_row_vector;
     self->is_diagonal       = is_diagonal;
     self->is_symmetric      = is_symmetric;
-    self->is_orthogonal     = is_matrix_orthogonal;
+    self->is_orthogonal     = is_orthogonal;
     //Printers
     self->print             = print_matrix;
-    self->to_string         = matrix_to_string;
+    self->to_string         = to_string;
     //Setters
-    self->set_elem          = set_matrix_elem;
+    self->set_elem          = set_elem;
     self->set_row           = set_row;
     self->set_col           = set_col;
     //Operations
     self->scale             = scale_matrix;
-    self->transpose         = transpose_matrix;
+    self->transpose         = transpose;
     self->pow               = matrix_power;
     //Elementary Operations
     self->swap_rows         = swap_rows;
@@ -202,12 +202,12 @@ Matrix *IDENTITY(int dim) {
 }
 
 /******************************Getters******************************/
-static int get_M_dimension(Matrix *self) { return self->__m__; }
-static int get_N_dimension(Matrix *self) { return self->__n__; }
+static int get_M(Matrix *self) { return self->__m__; }
+static int get_N(Matrix *self) { return self->__n__; }
 
-static bool is_matrix_out_of_bounds(Matrix *self, int row, int col) { return (row <= 0 || row > self->m(self) || col <= 0 || col > self->n(self)); }
+static bool is_out_of_bounds(Matrix *self, int row, int col) { return (row <= 0 || row > self->m(self) || col <= 0 || col > self->n(self)); }
 
-static double get_matrix_elem(Matrix *self, int row, int col) {
+static double get_elem(Matrix *self, int row, int col) {
     if(self->is_out_of_bounds(self, row, col)) {
         printf("Attempting to get a matrix element that is out of bounds.\n");
         return 0;
@@ -319,7 +319,7 @@ static bool is_symmetric(Matrix *self) {
     return true;
 }
 
-static bool is_matrix_orthogonal(Matrix *self) {
+static bool is_orthogonal(Matrix *self) {
     //Orthogonal matrices are square by definition
     if(self->m(self) != self->n(self))
         return false;
@@ -350,10 +350,10 @@ static void print_matrix(Matrix *self) {
     printf("\n");
 }
 
-static void matrix_to_string(Matrix *self, char *string) { sprintf(string, "Matrix of dimension: %dx%d", self->m(self), self->n(self)); }
+static void to_string(Matrix *self, char *string) { sprintf(string, "Matrix of dimension: %dx%d", self->m(self), self->n(self)); }
 
 /******************************Setters******************************/
-static void set_matrix_elem(Matrix *self, int row, int col, double value) {
+static void set_elem(Matrix *self, int row, int col, double value) {
     if(self->is_out_of_bounds(self, row, col))
         return;
 
@@ -389,7 +389,7 @@ static void scale_matrix(Matrix *self, double scale) {
         self->scale_row(self, row, scale);
 }
 
-static void transpose_matrix(Matrix *self) {
+static void transpose(Matrix *self) {
     Matrix *temp = newMatrix(self->n(self), self->m(self));
 
     for(int row = 1; row <= temp->m(self); row++)
