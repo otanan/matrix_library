@@ -3,3 +3,6 @@ build/*
 
 #Ignore any executables
 bin
+
+#Ignore any sublime project-related files
+*.sublime*
