@@ -29,3 +29,5 @@ $(BUILDDIR)/%.o : $(SRCDIR)/%.$(SRCEXT)
 clean :
 	@echo "Removing object files from build..."
 	rm build/*.o
+	@echo "Cleaning output.txt file"
+	@> res/output.txt
