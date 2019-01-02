@@ -557,18 +557,8 @@ static void scale_col(Matrix *self, int col, double scale) {
     if(scale == 1)
         return;
 
-    for(int row = 1; row <= self->m(self); row++) {
-        //Ternary checks to see if the scale is 0
-        //if it is, we don't need to know what element was there before
-        //we simply need to make the entry 0
-        self->set_elem(
-            self,
-            row,
-            col,
-            scale == 0 ? 0 : (self->get_elem(self, row, col) * scale)
-        );
-    }
-
+    for(int row = 1; row <= self->m(self); row++)
+        self->set_elem(self, row, col, self->get_elem(self, row, col) * scale);
 }
 
 static void add_rows(Matrix *self, int row1, int row2) {
