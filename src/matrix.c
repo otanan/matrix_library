@@ -438,16 +438,16 @@ static Matrix *matrix_power(Matrix *self, int pow) {
 Matrix *vector_mult(Vector *v1, Vector *v2) {
     //The multiplication is not defined because either both are column vectors
     //or both are row vectors
-    if((v1->is_col_vec(v1) && v2->is_col_vec(v2)) || (!v1->is_col_vec(v1) && !v2->is_col_vec(v2)))
+    if(v1->is_col_vec(v1) == v2->is_col_vec(v2))
         return NULL;
 
     //This is the inner product
     if(!v1->is_col_vec(v1) && v2->is_col_vec(v2)) {
-        //Must malloc to prevent automatic variable from being disposed after function call
-        double *elements = malloc(sizeof(double));
-        elements[0] = dot_product(v1, v2);
-        //Returns a 1x1 matrix with the result inside
-        return toMatrix(1, 1, elements);
+        //Since we know the dimensions of the matrix is just 1x1
+        //we can directly set the only element in the matrix to be result of the dot_product
+        Matrix *matrix = newMatrix(1, 1);
+        matrix->set_elem(matrix, 1, 1, dot_product(v1, v2));
+        return matrix;
     }
     //Otherwise, outer product:
     Matrix *m1 = toMatrix(v1->dim(v1), 1, v1->get_entries(v1));

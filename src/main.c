@@ -57,11 +57,8 @@ int main() {
 	//Some output padding
 	printf("\n\n");
 	// benchmark_general_multi(matrix_test, 100);
-	matrix_reader_test();
+	// matrix_reader_test();
 	/*************/
-
-
-
 
 
 	/*************/

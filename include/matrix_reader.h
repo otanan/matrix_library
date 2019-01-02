@@ -10,6 +10,8 @@ bool are_same_string(char *, char *);
 //directing to file and begins initialization
 //Returns a non-zero value on failure
 int read_matrix_file(FILE* fp);
+//Helper function that takes the process of reading the matrix from file
+void read_matrix_from_file(FILE *fp);
 
 /******************************Writing******************************/
 //Takes in the label of the matrix so it can be found in the matrix dictionary
