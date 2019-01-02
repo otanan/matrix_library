@@ -1,3 +1,6 @@
+#Ignore MacOS files
+.DS_STORE
+
 #Ignore any pre-compiled files in build folder
 build/*
 
