@@ -4,11 +4,6 @@
 #define DICT_H
 #include "../include/dict.h"
 #endif
-//Header guards for including matrix.h
-#ifndef MATRIX_H
-#define MATRIX_H
-#include "../include/matrix.h"
-#endif
 
 #include "../include/matrix_reader.h"
 
@@ -38,20 +33,14 @@
 	//Holds general functions such as: sum, scale, copy, multiply, etc
 	//Specialized functions for dynamic behavior: grow,
 
-
-//REFACTORING
-	//my_function()
-	//var my_var
-	//Benchmark, units in name
-//Refactor 
-
 //Matrix Reader
 	//Organize functions in sections and names
-	//Wrapper function for checking success of next and matrix_dict, returns label and matrix
 
 //Cut rows, cut cols helper functions
 
-//Test transpose matrix function after changing free()
+//Add error checking to matrix_reader
+
+//Understand success/failure program flags
 
 void matrix_reader_test(void);
 void matrix_reader_test() {
@@ -70,6 +59,9 @@ int main() {
 	// benchmark_general_multi(matrix_test, 100);
 	matrix_reader_test();
 	/*************/
+
+
+
 
 
 	/*************/
