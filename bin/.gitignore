@@ -1,0 +1,4 @@
+#Ignore all files, used to only save the folder itself
+#to give a better idea on how the library project is structured
+*
+!.gitignore
