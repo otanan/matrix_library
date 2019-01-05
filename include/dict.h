@@ -1,3 +1,10 @@
+/*
+*Filename: 		dict.h
+*Author: 		Jonathan Delgado
+*Description: 	Declaration of the dictionary struct including its methods
+*				and a declaration for the prototype of a dictionary constructor
+*/
+
 #include <stdbool.h>
 
 /******************************Structs******************************/
@@ -34,4 +41,11 @@ struct Dict {
 };
 
 /******************************Constructors******************************/
+/*
+*Function: newDict
+*-----------------------------
+*Pseudo-constructor function to create a new dictionary.
+*
+*returns: 	a struct pointer to the newly created dictionary
+*/
 Dict *newDict(void);
