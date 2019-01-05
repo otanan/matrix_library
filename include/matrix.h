@@ -48,26 +48,61 @@ struct Matrix {
 
 /******************************Constructors******************************/
 Matrix *newMatrix(int m, int n);
-//Jumps around the array and uses "set_row" to copy entries of the array
-//into the rows of the new matrix
-Matrix *toMatrix(int m, int n, double *);
+
+/*
+*Function: toMatrix
+*-----------------------------
+*Helper constructor. Converts a long array to a matrix by jumping around the
+*array and calling set_row to copy entries of the array into rows of the new
+*matrix
+*
+*m: 		the number of rows of the matrix, also the dimension m
+*n: 		the number of columns of the matrix, also th dimension n
+*a:			the array of length m * n, to be copied into the rows of the matrix
+*
+*returns: 	returns a struct pointer to the new matrix
+*/
+Matrix *toMatrix(int m, int n, double *a);
 Matrix *newRandomMatrix(int m, int n);
 
 Matrix *copyMatrix(Matrix *self);
 
-//This function either: returns a previously used identity matrix of the corresponding dimension
-//or, if never created before, constructs a new one, and then saves it into a list
-//the list is then checked every time an identity is needed in case it was previously constructed
-//saving time and memory
+
+/*
+*Function: IDENTITY
+*-----------------------------
+*A getter function for identities, implements memoization to prevent expensive
+*constructions that may end up being reused. This function either: returns a
+*previously used identity, or constructs one and stores it in a list for use
+*later. Every time the function is called, the list is checked to see if the 
+*identity has already been constructed.
+*
+*dim: 		the dimension of the square identity requested
+*
+*returns: 	a struct pointer to the identity
+*/
 Matrix *IDENTITY(int dim);
 /******************************Getters******************************/
 bool are_matrices_equal(Matrix *, Matrix *);
 
 /******************************Operations******************************/
-//Vector multiplication is most general type to decide whether the operation is
-//either an inner product or outer product
-Matrix *vector_mult(Vector *, Vector *);
+
+
+/*
+*Function: vector_mult
+*-----------------------------
+*Vector multiplication is the most general type, decides whether the operation
+*is either an inner product or outer product and calls the corresponding helper
+*
+*v1: 		the first vector
+*v2: 		the second vector
+*
+*returns: 	returns a struct pointer to the matrix result of the operation
+*			in the case of an inner product, it returns a 1x1 matrix whose
+*			only element is the result of the inner product
+*/
+Matrix *vector_mult(Vector *v1, Vector *v2);
 Matrix *matrix_mult(Matrix *, Matrix *);
 
-/******************************Testing Functionality******************************/
+/****************************Testing Functionality****************************/
 void matrix_test(void);
