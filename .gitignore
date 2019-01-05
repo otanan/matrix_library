@@ -1,2 +1,4 @@
 #Ignore MacOS files
 .DS_STORE
+#Ignore MacOS files in other folders
+*/.DS_STORE
