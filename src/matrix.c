@@ -19,16 +19,49 @@ static void free_matrix(Matrix *self);
 static int get_M(Matrix *self);
 static  int get_N(Matrix *self);
 static bool is_out_of_bounds(Matrix *self, int row, int col);
-//Handles accessing the pointer arrays, returns elements
+
+
+/*
+*Function: get_elem
+*-----------------------------
+*Getter function that gets the element of the matrix. Handles offsetting for
+*1 vs 0 indexing
+*
+*self:      the matrix to be accessed
+*row:       the row to be accessed
+*col:       the column to be accessed 
+*
+*returns:   returns a double that is the element at (row, col)
+*/
 static double get_elem(Matrix *self, int row, int col);
-//These functions will get the row and columns of a matrix as arrays
-//that way they can be operated on more generally instead of being directly converted
-//to vectors
+
+
+/*
+*Function: get_row
+*-----------------------------
+*Getter function that copies the rows of the matrix and retrieves the arrays
+*
+*self:      the matrix, whose row is to be copied
+*row:       the row to be copied
+*
+*returns:   pointer, pointing to the copied row array
+*/
 static double *get_row(Matrix *self, int row);
 static double *get_col(Matrix *self, int col);
 //Gets a column of the matrix as a column vector
+
+
+/*
+*Function: get_col_vector
+*-----------------------------
+*Getter function, retrieves the column of a matrix as a column vector
+*
+*self:      the matrix to be accessed
+*col:       the column to be accessed
+*
+*returns:   a struct pointer to the column vector
+*/
 static Vector *get_col_vector(Matrix *self, int col);
-//Gets a row of the matrix as a row vector
 static Vector *get_row_vector(Matrix *self, int row);
 static bool is_diagonal(Matrix *self);
 static bool is_symmetric(Matrix *self);
@@ -40,30 +73,86 @@ static void to_string(Matrix *self, char *string);
 
 /******************************Setters******************************/
 static void set_elem(Matrix *self, int row, int col, double val);
-//Copies the entries of the array passed in, and saves them as elements
-//of the row (col) of the matrix, does not change pointers in case array passed
-//is to be modified
-static void set_row(Matrix *self, int row, double *);
+
+
+/*
+*Function: set_row
+*-----------------------------
+*Copies the entries of the array passed in, and saves them as elemenst of the
+*new rol of the matrix. Does not change pointers in case array passed in is
+*modified
+*
+*self:      the matrix whose row is to be set
+*row:       the row to be changed
+*a:         the array that will be copied as a new row
+*
+*returns:   void
+*/
+static void set_row(Matrix *self, int row, double *a);
 static void set_col(Matrix *self, int col, double *);
 
 
 
 /******************************Operations******************************/
 static void scale_matrix(Matrix *self, double scale);
-//Transposes the matrix in place
+
+
+/*
+*Function: transpose
+*-----------------------------
+*Transposes the matrix in place, by copying the matrix, and calling set_row
+*with the argument of get_col, then changes the pointer and frees the original
+*matrix
+*
+*self:      the matrix to be transposed
+*
+*returns:   void
+*/
 static void transpose(Matrix *self);
 static Matrix *matrix_power(Matrix *self, int);
 //Helper function for matrix_mult
 static Matrix *outer_product(Matrix *, Matrix *);
 
-/******************************Elementary Operations******************************/
+/****************************Elementary Operations****************************/
 static void swap_rows(Matrix *self, int row1, int row2);
 static void scale_row(Matrix *self, int row, double scale);
 static void scale_col(Matrix *self, int col, double scale);
-//Will add row2 to row1 and store it in row1
+
+
+/*
+*Function: add_rows
+*-----------------------------
+*Will add row2 to row1 and store the result in row1
+*
+*self:      the matrix whose rows need to be added
+*row1:      the first row, and the row where the result will be stored
+*row2:      the second row
+*
+*returns:   void
+*/
 static void add_rows(Matrix *self, int row1, int row2);
 //Will combine scale_row, and add_rows with options of rescaling each row
-static void add_scaled_rows(Matrix *self, int row1, double scale1, int row2, double scale2);
+
+/*
+*Function: add_scaled_rows
+*-----------------------------
+*Will combine scale_row and add_rows with options of rescaling each row
+*
+*self:      the matrix whose rows are to be altered
+*row1:      the first row, and where the result is stored
+*scale1:    the scale for the first row
+*row2:      the second row
+*scale2:    the scale for the second row
+*
+*returns:   void
+*/
+static void add_scaled_rows(
+    Matrix *self,
+    int row1,
+    double scale1,
+    int row2,
+    double scale2
+);
 static double determinant(Matrix *self);
 /******************************END PROTOTYPES******************************/
 
@@ -592,7 +681,10 @@ static double determinant(Matrix *self) {
     //Matrix is a square 2x2 matrix
     //returns ad-bc
     if(self->m(self) == 2)
-        return ( (self->get_elem(self, 1, 1) * self->get_elem(self, 2, 2) ) - ( self->get_elem(self, 1, 2) * self->get_elem(self, 2, 1) ));
+        return (
+            (self->get_elem(self, 1, 1) * self->get_elem(self, 2, 2) )
+            - ( self->get_elem(self, 1, 2) * self->get_elem(self, 2, 1)
+        ));
 
     double determinant = 0;
     //Calculates determinants of minors and scales them by coefficients and sign

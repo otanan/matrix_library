@@ -1,3 +1,11 @@
+/*
+*Filename: 		vector.c
+*Author: 		Jonathan Delgado
+*Description: 	Implements a vector from linear algebra, as well as containing
+*				declarations and definitions for most "methods"
+*				describing the vector operations
+*/
+
 /******************************Include******************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,20 +18,72 @@
 /******************************PROTOTYPES******************************/
 
 /******************************Constructors******************************/
-//Copies a vector over
+
+/*
+*Function: copyVector
+*-----------------------------
+*Copies a vector
+*
+*self: 		the vector to be copied
+*
+*returns: 	a struct pointer to the copy
+*/
 static Vector *copyVector(Vector *self);
-//Method for freeing vectors
+
+/*
+*Function: free_vector
+*-----------------------------
+*A custom "method" to handle memory freeing for vector struct.
+*Intended to be used prior to a free(vector) on the pointer itself
+*to properly handle any malloc/calloc etc used on members of the struct.
+*
+*self: 		the struct to be freed
+*
+*returns: 	void
+*/
 static void free_vector(Vector *self);
 
 /******************************Getters******************************/
 static bool is_col_vec(Vector *self);
-//Just returns the opposite of is_col_vec, but serves for readability in logic
+
+/*
+*Function: is_row_vec
+*-----------------------------
+*Getter function for checking whether the vector is a row vector.
+*In reality, simply calls is_col_vec(self) and negates the response.
+*Overall serves to improve readability of logic
+*
+*self: 		the vector to be checked
+*
+*returns: 	a boolean, true if the vector is a row vector
+*/
 static bool is_row_vec(Vector *self);
-//Returns a copy of the entries of the vector
+
+/*
+*Function: get_entries
+*-----------------------------
+*Getter function that returns a copy of the entries of a vector.
+*
+*self: 		the vector whose entries are to be copied
+*
+*returns: 	a copy of the array of doubles of the entries of self
+*/
 static double *get_entries(Vector *self);
 static int get_dimension(Vector *self);
 static bool is_out_of_bounds(Vector *self, int row);
-//Handles accessing the pointer arrays, returns elements
+
+/*
+*Function: get_elem
+*-----------------------------
+*A getter function to retrieve components of the vector. Handles the logic
+*behind accessing the array and necessary error handling, as well as
+*off-setting by 1 to account for 0 vs 1 indexing.
+*
+*self: 		the veector to be accessed
+*entry: 	the index of the entry to be accesseed (beginning at 1)
+*
+*returns: 	the double that is the entry of the vector at entry
+*/
 static double get_elem(Vector *self, int entry);
 
 /******************************Printers******************************/
@@ -32,9 +92,18 @@ static void print_vector(Vector *self);
 
 /******************************Setters******************************/
 static void set_elem(Vector *self, int row, double value);
-//Takes in an array and overwrites the entries to that of the array
-//note that the array length is implied by the vector dimension
-//serves mostly as a helper function for toVector
+
+/*
+*Function: set_entries
+*-----------------------------
+*Takes in an array and oveerwrites the entries of the vector with the 
+*corresponding entries of the array
+*
+*self: 		the vector whose entries are to be overwritten
+*entris: 	the new array of entries
+*
+*returns: 	void
+*/
 static void set_entries(Vector *self, double *entries);
 
 
@@ -46,8 +115,9 @@ static double p_norm(Vector *, int p);
 
 /******************************END PROTOTYPES******************************/
 
-/******************************General Functionality******************************/
-//Effectively adapts the memcpy to use a length rather than a memory size argument
+/****************************General Functionality****************************/
+//Effectively adapts the memcpy to use a length
+//rather than a memory size argument
 double *copy_array_of_doubles(double *a, int len) {
 	if(len <= 0) {
 		printf("Invalid array length.\n");	

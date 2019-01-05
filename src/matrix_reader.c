@@ -1,3 +1,10 @@
+/*
+*Filename:      matrix_reader.c
+*Author:        Jonathan Delgado
+*Description:   Implements reading file reading functionality for interfacing
+*               with matrix library
+*/
+
 /******************************Include******************************/
 //for strlen
 #include <string.h>
@@ -24,9 +31,20 @@ static void key_to_string(void *key, char *line);
 //Casts the void pointer to a Matrix pointer and points to the
 //to_string method of the matrix
 static void value_to_string(void *value, char *line);
-//Reads the matrix label to be stored in the label argument
-//and accesses the dictionary to return the corresponding matrix
-//handles the error checking for label reading and dictionary accessing
+
+
+/*
+*Function: matrix_retrieve
+*-----------------------------
+*Reads the matrix label from the file, to be stored in the label argument
+*and accesses the dictionary to return the corresponding matrix. Handles any
+*any error checking for label reading and accessing the dictionary
+*
+*fp:        the file to read the label from
+*label:     the label of the matrix to be retrieved from the dictionary
+*
+*returns:   a struct pointer to the matrix previously saved
+*/
 static Matrix *matrix_retrieve(FILE *fp, char *label);
 /******************************Operations******************************/
 static void multiply_matrices(FILE *fp);
