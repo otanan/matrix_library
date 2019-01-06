@@ -85,6 +85,7 @@ Matrix *matrix_retrieve(FILE *fp, char *label) {
 
 /******************************Getters******************************/
 bool are_same_string(char *s1, char *s2) { return !strcmp(s1, s2); }
+bool string_starts_with(char *prefix, char *string) { return !strncmp(prefix, string, strlen(prefix)); }
 
 /******************************Reading******************************/
 int read_matrix_file(FILE* fp) {
@@ -102,7 +103,13 @@ int read_matrix_file(FILE* fp) {
 
     while( next(fp, line) != EOF ) {
 
-        if(are_same_string("matrix", line)) {
+        if(string_starts_with("//", line)) {
+            //The text file line begins with a comment, we want to simply ignore
+            //this entire line
+            skip_line(fp);
+
+
+       } else if(are_same_string("matrix", line)) {
 
             read_matrix_from_file(fp);
 

@@ -1,3 +1,9 @@
+//2 forward slashes denotes a comment
+
+//Define matrices by putting the command "matrix"
+//followed by a label to reference the matrix from
+//The line after defines the dimensions of the matrix
+//Finally, define the entries
 matrix A
 2 2
 1 0
@@ -8,8 +14,11 @@ matrix B
 42 -3
 -1.2 12
 
+//We can multiply A and B, the result is stored by
+//concatenating the labels, in this case the product is called AB
 multiply A B
 
+//We can also store larger matrices
 matrix C
 4 4
 8247 2348798 24789023 11
@@ -17,19 +26,11 @@ matrix C
 111 -1 0.1 13
 432 -1 0.333 13
 
-matrix D
-2 4
-845 2345 34 3543
--2432 5432534.2 34235 55
-
-multiply B D
-
-multply B C
-
-matrix E
-3 3
-2 4 1
-12 27 44
--3 1 2
-
+//We can calculate determinants simply by calling det
+//followed by the label of the matrix separated by a space
 det AB
+
+//Tranposing matrices is easy too
+transpose AB
+//The result is stored as AB^T
+det AB^T

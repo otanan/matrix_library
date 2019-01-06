@@ -12,6 +12,19 @@
 /******************************Getters******************************/
 bool are_same_string(char *, char *);
 
+
+/*
+*Function: string_starts_with
+*-----------------------------
+*Employs strncmp to check whether string begins with prefix, where n is the
+*strlen(prefix)
+*
+*prefix:    the beginning of the string to be matched for
+*string:    the string to be checked
+*
+*returns:   true if the prefixes match, false otherwise
+*/
+bool string_starts_with(char *prefix, char *string);
 /******************************Reading******************************/
 
 
